@@ -172,30 +172,59 @@ class StudentController extends Controller
     public function statistics()
     {
         try {
-            $students = Student::all();
+            $students = Student::with('department', 'course', 'academicYear')->get();
             
-            $byDepartment = $students->groupBy(function($item) {
-                return $item->department->name ?? 'Unknown';
-            })->map(function($group) {
-                return ['department' => $group->first()->department->name ?? 'Unknown', 'count' => $group->count()];
-            })->values();
+            // Group by department safely
+            $byDepartment = $students
+                ->filter(fn($s) => $s->department !== null)
+                ->groupBy(fn($item) => $item->department->name ?? 'Unknown')
+                ->map(fn($group) => [
+                    'department' => $group->first()->department->name ?? 'Unknown',
+                    'count' => $group->count()
+                ])
+                ->values();
             
-            $byCourse = $students->groupBy(function($item) {
-                return $item->course->name ?? 'Unknown';
-            })->map(function($group) {
-                return ['course' => $group->first()->course->name ?? 'Unknown', 'count' => $group->count()];
-            })->values();
+            // Group by course safely
+            $byCourse = $students
+                ->filter(fn($s) => $s->course !== null)
+                ->groupBy(fn($item) => $item->course->name ?? 'Unknown')
+                ->map(fn($group) => [
+                    'course' => $group->first()->course->name ?? 'Unknown',
+                    'count' => $group->count()
+                ])
+                ->values();
+            
+            // Group by academic year safely
+            $byYear = $students
+                ->filter(fn($s) => $s->academicYear !== null)
+                ->groupBy(fn($item) => $item->academicYear->name ?? 'Unknown')
+                ->map(fn($group) => [
+                    'year' => $group->first()->academicYear->name ?? 'Unknown',
+                    'count' => $group->count()
+                ])
+                ->values();
             
             return response()->json([
+                'success' => true,
                 'stats' => [
                     'total' => $students->count(),
                     'byDepartment' => $byDepartment,
                     'byCourse' => $byCourse,
-                    'byYear' => []
+                    'byYear' => $byYear
                 ]
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error('Student statistics error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'stats' => [
+                    'total' => 0,
+                    'byDepartment' => [],
+                    'byCourse' => [],
+                    'byYear' => []
+                ]
+            ], 500);
         }
     }
 }

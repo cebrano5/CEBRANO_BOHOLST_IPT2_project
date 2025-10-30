@@ -18,6 +18,10 @@ const Students: React.FC = () => {
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterCourse, setFilterCourse] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -72,7 +76,7 @@ const Students: React.FC = () => {
     }
   };
 
-  const fetchStudents = async (search = '', departmentFilter = '', courseFilter = '') => {
+  const fetchStudents = async (search = '', departmentFilter = '', courseFilter = '', page = 1) => {
     try {
       setLoading(true);
       setError('');
@@ -82,6 +86,8 @@ const Students: React.FC = () => {
       if (search) params.append('search', search);
       if (departmentFilter) params.append('department_id', departmentFilter);
       if (courseFilter) params.append('course_id', courseFilter);
+      params.append('page', page.toString());
+      params.append('limit', itemsPerPage.toString());
       
       const api = getAxiosClient();
       const response = await api.get(`/students?${params.toString()}`);
@@ -89,6 +95,11 @@ const Students: React.FC = () => {
       // Handle the correct response format from backend
       if (response.data.students && Array.isArray(response.data.students)) {
         setStudents(response.data.students);
+        if (response.data.pagination) {
+          setTotalStudents(response.data.pagination.total);
+          setTotalPages(response.data.pagination.pages);
+          setCurrentPage(page);
+        }
       } else {
         setStudents([]);
       }
@@ -149,7 +160,8 @@ const Students: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchStudents(searchTerm);
+    setCurrentPage(1);
+    fetchStudents(searchTerm, filterDepartment, filterCourse, 1);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -172,7 +184,7 @@ const Students: React.FC = () => {
         address: ''
       });
       setAvailableCourses(courses);
-      fetchStudents(searchTerm);
+      fetchStudents(searchTerm, filterDepartment, filterCourse, 1);
       alert('Student added successfully!');
     } catch (error: any) {
       console.error('Error adding student:', error);
@@ -204,7 +216,8 @@ const Students: React.FC = () => {
 
   // Handle filter changes
   const handleFilterChange = () => {
-    fetchStudents(searchTerm, filterDepartment, filterCourse);
+    setCurrentPage(1);
+    fetchStudents(searchTerm, filterDepartment, filterCourse, 1);
   };
 
   // Handle edit student
@@ -248,7 +261,7 @@ const Students: React.FC = () => {
         phone: '',
         address: ''
       });
-      fetchStudents(searchTerm, filterDepartment, filterCourse);
+      fetchStudents(searchTerm, filterDepartment, filterCourse, currentPage);
       alert('Student updated successfully!');
     } catch (error: any) {
       console.error('Error updating student:', error);
@@ -268,7 +281,7 @@ const Students: React.FC = () => {
       setLoading(true);
       const api = getAxiosClient();
       await api.delete(`/students/${studentId}`);
-      fetchStudents(searchTerm, filterDepartment, filterCourse);
+      fetchStudents(searchTerm, filterDepartment, filterCourse, currentPage);
       alert('Student archived successfully!');
     } catch (error: any) {
       console.error('Error archiving student:', error);
@@ -481,6 +494,61 @@ const Students: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-center items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, 1)}
+              >
+                First
+              </Button>
+              <Button
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, currentPage - 1)}
+              >
+                Previous
+              </Button>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, page)}
+                  className="min-w-10"
+                >
+                  {page}
+                </Button>
+              ))}
+
+              <Button
+                variant="outline"
+                disabled={currentPage === totalPages}
+                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, currentPage + 1)}
+              >
+                Next
+              </Button>
+              <Button
+                variant="outline"
+                disabled={currentPage === totalPages}
+                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, totalPages)}
+              >
+                Last
+              </Button>
+
+              <div className="text-sm text-gray-600 dark:text-gray-400 ml-4">
+                Page {currentPage} of {totalPages} • Total: {totalStudents} students
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Features Info */}
       <Card>

@@ -17,6 +17,10 @@ const Faculty: React.FC = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState<any>(null);
   const [filterDepartment, setFilterDepartment] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalFaculty, setTotalFaculty] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [departments, setDepartments] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -46,7 +50,7 @@ const Faculty: React.FC = () => {
     }
   };
 
-  const fetchFaculty = async (search = '', departmentFilter = '') => {
+  const fetchFaculty = async (search = '', departmentFilter = '', page = 1) => {
     try {
       setLoading(true);
       setError('');
@@ -55,6 +59,8 @@ const Faculty: React.FC = () => {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (departmentFilter) params.append('department_id', departmentFilter);
+      params.append('page', page.toString());
+      params.append('limit', itemsPerPage.toString());
       
       const api = getAxiosClient();
       const response = await api.get(`/faculty?${params.toString()}`);
@@ -62,6 +68,11 @@ const Faculty: React.FC = () => {
       // Handle the correct response format from backend
       if (response.data.faculty && Array.isArray(response.data.faculty)) {
         setFaculty(response.data.faculty);
+        if (response.data.pagination) {
+          setTotalFaculty(response.data.pagination.total);
+          setTotalPages(response.data.pagination.pages);
+          setCurrentPage(page);
+        }
       } else {
         setFaculty([]);
       }
@@ -81,7 +92,8 @@ const Faculty: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchFaculty(searchTerm);
+    setCurrentPage(1);
+    fetchFaculty(searchTerm, filterDepartment, 1);
   };
 
 
@@ -107,7 +119,7 @@ const Faculty: React.FC = () => {
         phone: '',
         address: ''
       });
-      fetchFaculty(searchTerm);
+      fetchFaculty(searchTerm, filterDepartment, 1);
       alert('Faculty added successfully!');
     } catch (error: any) {
       console.error('Error adding faculty:', error);
@@ -126,7 +138,8 @@ const Faculty: React.FC = () => {
 
   // Handle filter changes
   const handleFilterChange = () => {
-    fetchFaculty(searchTerm, filterDepartment);
+    setCurrentPage(1);
+    fetchFaculty(searchTerm, filterDepartment, 1);
   };
 
   // Handle edit faculty
@@ -176,7 +189,7 @@ const Faculty: React.FC = () => {
         phone: '',
         address: ''
       });
-      fetchFaculty(searchTerm, filterDepartment);
+      fetchFaculty(searchTerm, filterDepartment, currentPage);
       alert('Faculty updated successfully!');
     } catch (error: any) {
       console.error('Error updating faculty:', error);
@@ -196,7 +209,7 @@ const Faculty: React.FC = () => {
       setLoading(true);
       const api = getAxiosClient();
       await api.delete(`/faculty/${facultyId}`);
-      fetchFaculty(searchTerm, filterDepartment);
+      fetchFaculty(searchTerm, filterDepartment, currentPage);
       alert('Faculty archived successfully!');
     } catch (error: any) {
       console.error('Error archiving faculty:', error);
@@ -384,6 +397,61 @@ const Faculty: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-center items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => fetchFaculty(searchTerm, filterDepartment, 1)}
+              >
+                First
+              </Button>
+              <Button
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => fetchFaculty(searchTerm, filterDepartment, currentPage - 1)}
+              >
+                Previous
+              </Button>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  onClick={() => fetchFaculty(searchTerm, filterDepartment, page)}
+                  className="min-w-10"
+                >
+                  {page}
+                </Button>
+              ))}
+
+              <Button
+                variant="outline"
+                disabled={currentPage === totalPages}
+                onClick={() => fetchFaculty(searchTerm, filterDepartment, currentPage + 1)}
+              >
+                Next
+              </Button>
+              <Button
+                variant="outline"
+                disabled={currentPage === totalPages}
+                onClick={() => fetchFaculty(searchTerm, filterDepartment, totalPages)}
+              >
+                Last
+              </Button>
+
+              <div className="text-sm text-gray-600 dark:text-gray-400 ml-4">
+                Page {currentPage} of {totalPages} • Total: {totalFaculty} faculty members
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Add Faculty Dialog */}
       <Dialog open={showAddForm} onOpenChange={setShowAddForm}>

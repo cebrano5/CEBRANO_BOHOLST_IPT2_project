@@ -65,7 +65,6 @@ function initializeAxiosClient(): void {
 
   const clientConfig: ApiClientConfig = {
     baseURL: config.apiBaseUrl,
-    withCredentials: true,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -74,19 +73,12 @@ function initializeAxiosClient(): void {
 
   axiosClient = axios.create(clientConfig);
 
-  // Request interceptor: Add auth token and CSRF token if available
+  // Request interceptor: Add auth token
   axiosClient.interceptors.request.use((cfg) => {
     const token = localStorage.getItem('token');
     if (token) {
       cfg.headers.Authorization = `Bearer ${token}`;
     }
-    
-    // Add CSRF token from cookie if available (for non-API routes)
-    const csrfToken = getCsrfToken();
-    if (csrfToken && (cfg.method === 'post' || cfg.method === 'put' || cfg.method === 'delete' || cfg.method === 'patch')) {
-      cfg.headers['X-CSRF-TOKEN'] = csrfToken;
-    }
-    
     return cfg;
   });
 

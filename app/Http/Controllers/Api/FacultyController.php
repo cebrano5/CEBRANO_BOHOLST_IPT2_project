@@ -170,23 +170,40 @@ class FacultyController extends Controller
         try {
             $faculty = Faculty::with('department')->get();
             
-            $byDepartment = $faculty->groupBy(function($item) {
-                return $item->department->name ?? 'Unknown';
-            })->map(function($group) {
-                return ['department' => $group->first()->department->name ?? 'Unknown', 'count' => $group->count()];
-            })->values();
+            // Group by department safely
+            $byDepartment = $faculty
+                ->filter(fn($f) => $f->department !== null)
+                ->groupBy(fn($item) => $item->department->name ?? 'Unknown')
+                ->map(fn($group) => [
+                    'department' => $group->first()->department->name ?? 'Unknown',
+                    'count' => $group->count()
+                ])
+                ->values();
             
-            $byEmploymentType = $faculty->groupBy('employment_type')->map(function($group) {
-                return ['type' => $group->first()->employment_type ?? 'Unknown', 'count' => $group->count()];
-            })->values();
+            // Group by employment type safely
+            $byEmploymentType = $faculty
+                ->filter(fn($f) => $f->employment_type !== null)
+                ->groupBy(fn($item) => $item->employment_type ?? 'Unknown')
+                ->map(fn($group) => [
+                    'type' => $group->first()->employment_type ?? 'Unknown',
+                    'count' => $group->count()
+                ])
+                ->values();
             
-            $byPosition = $faculty->groupBy('position')->map(function($group) {
-                return ['position' => $group->first()->position ?? 'Unknown', 'count' => $group->count()];
-            })->values();
+            // Group by position safely
+            $byPosition = $faculty
+                ->filter(fn($f) => $f->position !== null)
+                ->groupBy(fn($item) => $item->position ?? 'Unknown')
+                ->map(fn($group) => [
+                    'position' => $group->first()->position ?? 'Unknown',
+                    'count' => $group->count()
+                ])
+                ->values();
             
             $averageSalary = $faculty->avg('salary') ?? 0;
             
             return response()->json([
+                'success' => true,
                 'stats' => [
                     'total' => $faculty->count(),
                     'byDepartment' => $byDepartment,
@@ -196,7 +213,18 @@ class FacultyController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error('Faculty statistics error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'stats' => [
+                    'total' => 0,
+                    'byDepartment' => [],
+                    'byEmploymentType' => [],
+                    'byPosition' => [],
+                    'averageSalary' => 0,
+                ]
+            ], 500);
         }
     }
 }
