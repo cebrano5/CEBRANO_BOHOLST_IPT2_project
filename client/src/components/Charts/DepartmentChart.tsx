@@ -35,7 +35,7 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({
 
   return (
     <div className="w-full h-80 min-h-[320px]">
-      <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={320}>
+      <ResponsiveContainer width="100%" height={320} minWidth={300}>
         <BarChart
           data={chartData}
           margin={{
