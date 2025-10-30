@@ -1,5 +1,6 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Users } from 'lucide-react';
 
 interface DepartmentChartProps {
   data: Array<{
@@ -13,6 +14,18 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({
   data,
   title = "Department Distribution"
 }) => {
+  // Check if data is empty or loading
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+        <div className="text-center">
+          <Users className="mx-auto h-12 w-12 mb-2 opacity-50" />
+          <p>No department data available</p>
+        </div>
+      </div>
+    );
+  }
+
   // Transform data for the chart
   const chartData = data.map(item => ({
     name: item.department || 'Unspecified',
@@ -21,8 +34,8 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({
   }));
 
   return (
-    <div className="w-full h-80">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full h-80 min-h-[320px]">
+      <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={320}>
         <BarChart
           data={chartData}
           margin={{

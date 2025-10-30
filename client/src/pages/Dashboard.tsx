@@ -177,7 +177,11 @@ const Dashboard: React.FC = () => {
             <CardDescription>Distribution of students across courses</CardDescription>
           </CardHeader>
           <CardContent>
-            <CourseChart data={stats?.students.byCourse || []} />
+            {loading ? (
+              <SkeletonCard className="h-80" />
+            ) : (
+              <CourseChart data={stats?.students.byCourse || []} />
+            )}
           </CardContent>
         </Card>
 
@@ -187,7 +191,11 @@ const Dashboard: React.FC = () => {
             <CardDescription>Distribution of faculty across departments</CardDescription>
           </CardHeader>
           <CardContent>
-            <DepartmentChart data={stats?.faculty.byDepartment || []} />
+            {loading ? (
+              <SkeletonCard className="h-80" />
+            ) : (
+              <DepartmentChart data={stats?.faculty.byDepartment || []} />
+            )}
           </CardContent>
         </Card>
       </div>

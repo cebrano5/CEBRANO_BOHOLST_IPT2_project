@@ -17,21 +17,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Only seed if no data exists
-        if (User::where('role', 'faculty')->exists()) {
-            $this->command->info('Faculty already exist. Skipping faculty seeding.');
-            return;
-        }
-
         // Create departments
         $departments = [];
-        $deptNames = ['Computer Science', 'Engineering', 'Business', 'Arts', 'Sciences'];
+        $deptData = [
+            ['name' => 'Computer Science', 'code' => 'CS'],
+            ['name' => 'Engineering', 'code' => 'ENG'],
+            ['name' => 'Business', 'code' => 'BIZ'],
+            ['name' => 'Arts', 'code' => 'ART'],
+            ['name' => 'Sciences', 'code' => 'SCI'],
+        ];
         
-        foreach ($deptNames as $name) {
+        foreach ($deptData as $data) {
             $departments[] = Department::create([
-                'name' => $name,
-                'code' => strtoupper(substr(str_replace(' ', '', $name), 0, 3)),
-                'description' => "Department of {$name}",
+                'name' => $data['name'],
+                'code' => $data['code'],
+                'description' => "Department of {$data['name']}",
             ]);
         }
 
@@ -71,8 +71,8 @@ class DatabaseSeeder extends Seeder
         // Create admin user
         User::create([
             'name' => 'Admin User',
-            'email' => 'admin@sfms.local',
-            'password' => bcrypt('password123'),
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
             'role' => 'admin',
         ]);
 
@@ -80,8 +80,8 @@ class DatabaseSeeder extends Seeder
         for ($i = 1; $i <= 10; $i++) {
             $user = User::create([
                 'name' => "Professor Smith {$i}",
-                'email' => "faculty{$i}@sfms.local",
-                'password' => bcrypt('password123'),
+                'email' => "faculty{$i}@example.com",
+                'password' => bcrypt('password'),
                 'role' => 'faculty',
             ]);
 
@@ -116,19 +116,13 @@ class DatabaseSeeder extends Seeder
                 'course_id' => $courses[rand(0, count($courses) - 1)]->id,
                 'phone' => '555-' . str_pad($i, 4, '0', STR_PAD_LEFT),
                 'address' => "Student Address {$i}, City",
-                'date_of_birth' => date('Y-m-d', strtotime("-" . (18 + rand(0, 10)) . " years")),
-                'academic_year' => 2024,
             ]);
-
-            // Enroll student in random courses
-            $randomCourses = collect($courses)->random(rand(2, 4))->pluck('id');
-            $student->courses()->attach($randomCourses);
         }
 
         $this->command->info('Database seeded successfully with test data!');
         $this->command->info('Test Users:');
-        $this->command->info('  Admin: admin@sfms.local / password123');
-        $this->command->info('  Faculty: faculty1@sfms.local / password123');
+        $this->command->info('  Admin: admin@example.com / password');
+        $this->command->info('  Faculty: faculty1@example.com / password');
         $this->command->info('  Student: student1@sfms.local / password123');
     }
 }

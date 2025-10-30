@@ -74,12 +74,19 @@ function initializeAxiosClient(): void {
 
   axiosClient = axios.create(clientConfig);
 
-  // Request interceptor: Add auth token if available
+  // Request interceptor: Add auth token and CSRF token if available
   axiosClient.interceptors.request.use((cfg) => {
     const token = localStorage.getItem('token');
     if (token) {
       cfg.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Add CSRF token from cookie if available (for non-API routes)
+    const csrfToken = getCsrfToken();
+    if (csrfToken && (cfg.method === 'post' || cfg.method === 'put' || cfg.method === 'delete' || cfg.method === 'patch')) {
+      cfg.headers['X-CSRF-TOKEN'] = csrfToken;
+    }
+    
     return cfg;
   });
 
@@ -96,6 +103,25 @@ function initializeAxiosClient(): void {
       return Promise.reject(error);
     }
   );
+}
+
+/**
+ * Get CSRF token from meta tag or cookie
+ */
+function getCsrfToken(): string | null {
+  // First try to get from meta tag
+  const metaTag = document.querySelector('meta[name="csrf-token"]');
+  if (metaTag) {
+    return metaTag.getAttribute('content');
+  }
+  
+  // Fall back to getting from cookie
+  const name = 'XSRF-TOKEN';
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  
+  return null;
 }
 
 /**

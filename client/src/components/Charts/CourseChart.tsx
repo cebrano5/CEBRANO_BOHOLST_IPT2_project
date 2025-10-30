@@ -1,5 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { GraduationCap } from 'lucide-react';
 
 interface CourseChartProps {
   data: Array<{
@@ -24,6 +25,18 @@ export const CourseChart: React.FC<CourseChartProps> = ({
   data,
   title = "Course Distribution"
 }) => {
+  // Check if data is empty or loading
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+        <div className="text-center">
+          <GraduationCap className="mx-auto h-12 w-12 mb-2 opacity-50" />
+          <p>No course data available</p>
+        </div>
+      </div>
+    );
+  }
+
   // Transform data for the chart
   const chartData = data.map((item, index) => ({
     name: item.course || 'Unspecified',
@@ -32,8 +45,8 @@ export const CourseChart: React.FC<CourseChartProps> = ({
   }));
 
   return (
-    <div className="w-full h-80">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full h-80 min-h-[320px]">
+      <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={320}>
         <PieChart>
           <Pie
             data={chartData}
