@@ -106,17 +106,9 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
 // Public routes (no auth required)
-Route::get('/academic-years', function () {
-    return response()->json(['success' => true, 'data' => \App\Models\AcademicYear::all()]);
-});
-
-Route::get('/departments', function () {
-    return response()->json(['success' => true, 'data' => \App\Models\Department::all()]);
-});
-
-Route::get('/courses', function () {
-    return response()->json(['success' => true, 'data' => \App\Models\Course::with('department')->get()]);
-});
+Route::get('/academic-years', [SettingsController::class, 'getAcademicYears']);
+Route::get('/departments', [SettingsController::class, 'getDepartments']);
+Route::get('/courses', [SettingsController::class, 'getCourses']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -130,9 +122,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/students/stats', [StudentController::class, 'statistics']);
     Route::apiResource('students', StudentController::class);
+    Route::patch('/students/{id}/restore', [StudentController::class, 'restore']);
     Route::get('/faculty/stats', [FacultyController::class, 'statistics']);
     Route::apiResource('faculty', FacultyController::class);
+    Route::patch('/faculty/{id}/restore', [FacultyController::class, 'restore']);
     Route::apiResource('courses', CourseController::class);
+    Route::patch('/courses/{id}/restore', [CourseController::class, 'restore']);
     Route::get('/reports', [ReportController::class, 'index']);
     Route::get('/reports/students', [ReportController::class, 'studentDetails']);
     Route::get('/reports/faculty', [ReportController::class, 'facultyDetails']);
@@ -147,7 +142,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/departments', [SettingsController::class, 'storeDepartment']);
     Route::put('/departments/{id}', [SettingsController::class, 'updateDepartment']);
     Route::delete('/departments/{id}', [SettingsController::class, 'destroyDepartment']);
+    Route::patch('/departments/{id}/restore', [SettingsController::class, 'restoreDepartment']);
     Route::post('/academic-years', [SettingsController::class, 'storeAcademicYear']);
     Route::put('/academic-years/{id}', [SettingsController::class, 'updateAcademicYear']);
     Route::delete('/academic-years/{id}', [SettingsController::class, 'destroyAcademicYear']);
+    Route::patch('/academic-years/{id}/restore', [SettingsController::class, 'restoreAcademicYear']);
+    Route::patch('/students/{id}/restore', [SettingsController::class, 'restoreStudent']);
+    Route::patch('/faculty/{id}/restore', [SettingsController::class, 'restoreFaculty']);
 });

@@ -23,6 +23,7 @@ class Faculty extends Model
         'address',
         'qualifications',
         'specializations',
+        'archived',
     ];
 
     protected $appends = [
@@ -63,5 +64,21 @@ class Faculty extends Model
     public function getDepartmentNameAttribute(): string
     {
         return $this->department?->name ?? 'Unknown';
+    }
+
+    /**
+     * Scope to get only active (non-archived) faculty.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('archived', false);
+    }
+
+    /**
+     * Scope to get only archived faculty.
+     */
+    public function scopeArchived($query)
+    {
+        return $query->where('archived', true);
     }
 }

@@ -15,6 +15,13 @@ const Settings: React.FC = () => {
   const [departments, setDepartments] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
   const [academicYears, setAcademicYears] = useState<any[]>([]);
+  const [archivedData, setArchivedData] = useState<any>({
+    departments: [],
+    courses: [],
+    academic_years: [],
+    students: [],
+    faculty: []
+  });
 
   // Dialog states
   const [showDepartmentForm, setShowDepartmentForm] = useState(false);
@@ -52,6 +59,7 @@ const Settings: React.FC = () => {
     { id: 'departments', name: 'Departments', icon: Building },
     { id: 'courses', name: 'Courses', icon: BookOpen },
     { id: 'academic-years', name: 'Academic Years', icon: Calendar },
+    { id: 'archive', name: 'Archive', icon: Archive },
   ];
 
   // Fetch functions
@@ -91,6 +99,24 @@ const Settings: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching academic years:', error);
+    }
+  };
+
+  const fetchArchivedData = async () => {
+    try {
+      const api = getAxiosClient();
+      const response = await api.get('/archive');
+      if (response.data.success) {
+        setArchivedData(response.data.data || {
+          departments: [],
+          courses: [],
+          academic_years: [],
+          students: [],
+          faculty: []
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching archived data:', error);
     }
   };
 
@@ -191,6 +217,7 @@ const Settings: React.FC = () => {
       await api.delete(`/courses/${id}`);
       alert('Course archived successfully!');
       fetchCourses();
+      fetchArchivedData();
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to archive course');
     }
@@ -232,14 +259,79 @@ const Settings: React.FC = () => {
   };
 
   const handleArchiveAcademicYear = async (id: number, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete ${name}?`)) return;
+    if (!window.confirm(`Are you sure you want to archive ${name}?`)) return;
     try {
       const api = getAxiosClient();
       await api.delete(`/academic-years/${id}`);
-      alert('Academic year deleted successfully!');
+      alert('Academic year archived successfully!');
       fetchAcademicYears();
+      fetchArchivedData();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to delete academic year');
+      alert(error.response?.data?.message || 'Failed to archive academic year');
+    }
+  };
+
+  // Restore functions
+  const handleRestoreDepartment = async (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to restore ${name}?`)) return;
+    try {
+      const api = getAxiosClient();
+      await api.patch(`/departments/${id}/restore`);
+      alert('Department restored successfully!');
+      fetchDepartments();
+      fetchArchivedData();
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Failed to restore department');
+    }
+  };
+
+  const handleRestoreCourse = async (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to restore ${name}?`)) return;
+    try {
+      const api = getAxiosClient();
+      await api.patch(`/courses/${id}/restore`);
+      alert('Course restored successfully!');
+      fetchCourses();
+      fetchArchivedData();
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Failed to restore course');
+    }
+  };
+
+  const handleRestoreAcademicYear = async (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to restore ${name}?`)) return;
+    try {
+      const api = getAxiosClient();
+      await api.patch(`/academic-years/${id}/restore`);
+      alert('Academic year restored successfully!');
+      fetchAcademicYears();
+      fetchArchivedData();
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Failed to restore academic year');
+    }
+  };
+
+  const handleRestoreStudent = async (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to restore ${name}?`)) return;
+    try {
+      const api = getAxiosClient();
+      await api.patch(`/students/${id}/restore`);
+      alert('Student restored successfully!');
+      fetchArchivedData();
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Failed to restore student');
+    }
+  };
+
+  const handleRestoreFaculty = async (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to restore ${name}?`)) return;
+    try {
+      const api = getAxiosClient();
+      await api.patch(`/faculty/${id}/restore`);
+      alert('Faculty member restored successfully!');
+      fetchArchivedData();
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Failed to restore faculty member');
     }
   };
 
@@ -247,6 +339,7 @@ const Settings: React.FC = () => {
     fetchDepartments();
     fetchCourses();
     fetchAcademicYears();
+    fetchArchivedData();
   }, []);
 
   return (
@@ -480,6 +573,209 @@ const Settings: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {activeTab === 'archive' && (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Archive className="mr-2 h-5 w-5" />
+                  Archived Items Management
+                </CardTitle>
+                <CardDescription>
+                  View and restore archived departments, courses, and academic years.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-8">
+                  {/* Archived Departments */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Archived Departments ({archivedData.departments?.length || 0})</h3>
+                    {archivedData.departments?.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Code</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {archivedData.departments.map((dept: any) => (
+                            <TableRow key={dept.id}>
+                              <TableCell className="font-medium">{dept.name}</TableCell>
+                              <TableCell>{dept.code}</TableCell>
+                              <TableCell>{dept.description || 'No description'}</TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleRestoreDepartment(dept.id, dept.name)}
+                                >
+                                  Restore
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <p className="text-gray-500">No archived departments</p>
+                    )}
+                  </div>
+
+                  {/* Archived Courses */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Archived Courses ({archivedData.courses?.length || 0})</h3>
+                    {archivedData.courses?.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Code</TableHead>
+                            <TableHead>Department</TableHead>
+                            <TableHead>Credits</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {archivedData.courses.map((course: any) => (
+                            <TableRow key={course.id}>
+                              <TableCell className="font-medium">{course.name}</TableCell>
+                              <TableCell>{course.code}</TableCell>
+                              <TableCell>{course.department?.name || 'N/A'}</TableCell>
+                              <TableCell>{course.credits || 'N/A'}</TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleRestoreCourse(course.id, course.name)}
+                                >
+                                  Restore
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <p className="text-gray-500">No archived courses</p>
+                    )}
+                  </div>
+
+                  {/* Archived Academic Years */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Archived Academic Years ({archivedData.academic_years?.length || 0})</h3>
+                    {archivedData.academic_years?.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Years</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {archivedData.academic_years.map((year: any) => (
+                            <TableRow key={year.id}>
+                              <TableCell className="font-medium">{year.name}</TableCell>
+                              <TableCell>{year.start_year} - {year.end_year}</TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleRestoreAcademicYear(year.id, year.name)}
+                                >
+                                  Restore
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <p className="text-gray-500">No archived academic years</p>
+                    )}
+                  </div>
+
+                  {/* Archived Students */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Archived Students ({archivedData.students?.length || 0})</h3>
+                    {archivedData.students?.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Student ID</TableHead>
+                            <TableHead>Course</TableHead>
+                            <TableHead>Department</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {archivedData.students.map((student: any) => (
+                            <TableRow key={student.id}>
+                              <TableCell className="font-medium">{student.user?.name || 'Unknown'}</TableCell>
+                              <TableCell>{student.student_id}</TableCell>
+                              <TableCell>{student.course?.name || 'N/A'}</TableCell>
+                              <TableCell>{student.department?.name || 'N/A'}</TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleRestoreStudent(student.id, student.user?.name || 'Student')}
+                                >
+                                  Restore
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <p className="text-gray-500">No archived students</p>
+                    )}
+                  </div>
+
+                  {/* Archived Faculty */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Archived Faculty ({archivedData.faculty?.length || 0})</h3>
+                    {archivedData.faculty?.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Employee ID</TableHead>
+                            <TableHead>Position</TableHead>
+                            <TableHead>Department</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {archivedData.faculty.map((faculty: any) => (
+                            <TableRow key={faculty.id}>
+                              <TableCell className="font-medium">{faculty.user?.name || 'Unknown'}</TableCell>
+                              <TableCell>{faculty.employee_id}</TableCell>
+                              <TableCell>{faculty.position || 'N/A'}</TableCell>
+                              <TableCell>{faculty.department?.name || 'N/A'}</TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleRestoreFaculty(faculty.id, faculty.user?.name || 'Faculty')}
+                                >
+                                  Restore
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <p className="text-gray-500">No archived faculty</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
 

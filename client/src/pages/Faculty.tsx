@@ -558,12 +558,6 @@ const Faculty: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <Input
-                name="phone"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleInputChange}
-              />
-              <Input
                 name="address"
                 placeholder="Address"
                 value={formData.address}

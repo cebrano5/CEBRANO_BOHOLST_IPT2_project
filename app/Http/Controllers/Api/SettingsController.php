@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\AcademicYear;
+use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,8 +17,8 @@ class SettingsController extends Controller
     public function index()
     {
         $settings = [
-            'departments' => Department::all(),
-            'academic_years' => AcademicYear::all(),
+            'departments' => Department::active()->get(),
+            'academic_years' => AcademicYear::active()->get(),
         ];
 
         return response()->json([
@@ -31,11 +32,42 @@ class SettingsController extends Controller
      */
     public function archive()
     {
-        // This could return archived academic years, departments, etc.
+        $archivedData = [
+            'departments' => Department::archived()->get(),
+            'courses' => Course::archived()->with('department')->get(),
+            'academic_years' => AcademicYear::archived()->get(),
+            'students' => \App\Models\Student::archived()->with('user', 'course', 'department', 'academicYear')->get(),
+            'faculty' => \App\Models\Faculty::archived()->with('user', 'department')->get(),
+        ];
+
         return response()->json([
             'success' => true,
-            'data' => [],
+            'data' => $archivedData,
         ]);
+    }
+
+    /**
+     * Get active academic years (public route)
+     */
+    public function getAcademicYears()
+    {
+        return response()->json(['success' => true, 'data' => AcademicYear::active()->get()]);
+    }
+
+    /**
+     * Get active departments (public route)
+     */
+    public function getDepartments()
+    {
+        return response()->json(['success' => true, 'data' => Department::active()->get()]);
+    }
+
+    /**
+     * Get active courses (public route)
+     */
+    public function getCourses()
+    {
+        return response()->json(['success' => true, 'data' => Course::active()->with('department')->get()]);
     }
 
     /**
@@ -95,16 +127,16 @@ class SettingsController extends Controller
     }
 
     /**
-     * Delete a department
+     * Archive a department
      */
     public function destroyDepartment($id)
     {
         $department = Department::findOrFail($id);
-        $department->delete();
+        $department->update(['archived' => true]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Department deleted successfully',
+            'message' => 'Department archived successfully',
         ]);
     }
 
@@ -177,16 +209,72 @@ class SettingsController extends Controller
     }
 
     /**
-     * Delete an academic year
+     * Archive an academic year
      */
     public function destroyAcademicYear($id)
     {
         $academicYear = AcademicYear::findOrFail($id);
-        $academicYear->delete();
+        $academicYear->update(['archived' => true]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Academic year deleted successfully',
+            'message' => 'Academic year archived successfully',
+        ]);
+    }
+
+    /**
+     * Restore a department
+     */
+    public function restoreDepartment($id)
+    {
+        $department = Department::findOrFail($id);
+        $department->update(['archived' => false]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Department restored successfully',
+        ]);
+    }
+
+    /**
+     * Restore an academic year
+     */
+    public function restoreAcademicYear($id)
+    {
+        $academicYear = AcademicYear::findOrFail($id);
+        $academicYear->update(['archived' => false]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Academic year restored successfully',
+        ]);
+    }
+
+    /**
+     * Restore a student
+     */
+    public function restoreStudent($id)
+    {
+        $student = \App\Models\Student::findOrFail($id);
+        $student->update(['archived' => false]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Student restored successfully',
+        ]);
+    }
+
+    /**
+     * Restore a faculty member
+     */
+    public function restoreFaculty($id)
+    {
+        $faculty = \App\Models\Faculty::findOrFail($id);
+        $faculty->update(['archived' => false]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Faculty member restored successfully',
         ]);
     }
 }

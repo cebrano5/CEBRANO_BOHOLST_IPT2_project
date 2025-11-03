@@ -20,7 +20,7 @@ class FacultyController extends Controller
         $search = $request->query('search');
         $departmentId = $request->query('department_id');
 
-        $query = Faculty::with('user', 'department');
+        $query = Faculty::with('user', 'department')->active();
 
         if ($search) {
             $query->whereHas('user', function ($q) use ($search) {
@@ -145,7 +145,7 @@ class FacultyController extends Controller
     }
 
     /**
-     * Delete faculty member
+     * Archive faculty member
      */
     public function destroy($id)
     {
@@ -155,11 +155,25 @@ class FacultyController extends Controller
             return response()->json(['error' => 'Faculty member not found'], 404);
         }
 
-        $userId = $faculty->user_id;
-        $faculty->delete();
-        User::find($userId)->delete();
+        $faculty->update(['archived' => true]);
 
-        return response()->json(['message' => 'Faculty member deleted successfully']);
+        return response()->json(['message' => 'Faculty member archived successfully']);
+    }
+
+    /**
+     * Restore faculty member
+     */
+    public function restore($id)
+    {
+        $faculty = Faculty::find($id);
+
+        if (!$faculty) {
+            return response()->json(['error' => 'Faculty member not found'], 404);
+        }
+
+        $faculty->update(['archived' => false]);
+
+        return response()->json(['message' => 'Faculty member restored successfully']);
     }
 
     /**

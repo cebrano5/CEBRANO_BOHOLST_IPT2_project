@@ -22,7 +22,7 @@ class StudentController extends Controller
         $departmentId = $request->query('department_id');
         $courseId = $request->query('course_id');
 
-        $query = Student::with('user', 'course', 'department', 'academicYear');
+        $query = Student::with('user', 'course', 'department', 'academicYear')->active();
 
         if ($search) {
             $query->whereHas('user', function ($q) use ($search) {
@@ -149,7 +149,7 @@ class StudentController extends Controller
     }
 
     /**
-     * Delete student
+     * Archive student
      */
     public function destroy($id)
     {
@@ -159,11 +159,25 @@ class StudentController extends Controller
             return response()->json(['error' => 'Student not found'], 404);
         }
 
-        $userId = $student->user_id;
-        $student->delete();
-        User::find($userId)->delete();
+        $student->update(['archived' => true]);
 
-        return response()->json(['message' => 'Student deleted successfully']);
+        return response()->json(['message' => 'Student archived successfully']);
+    }
+
+    /**
+     * Restore student
+     */
+    public function restore($id)
+    {
+        $student = Student::find($id);
+
+        if (!$student) {
+            return response()->json(['error' => 'Student not found'], 404);
+        }
+
+        $student->update(['archived' => false]);
+
+        return response()->json(['message' => 'Student restored successfully']);
     }
 
     /**

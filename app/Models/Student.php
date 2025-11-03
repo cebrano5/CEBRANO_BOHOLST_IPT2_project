@@ -18,6 +18,7 @@ class Student extends Model
         'academic_year_id',
         'phone',
         'address',
+        'archived',
     ];
 
     protected $appends = [
@@ -80,5 +81,21 @@ class Student extends Model
     public function getDepartmentNameAttribute(): string
     {
         return $this->department?->name ?? 'Unknown';
+    }
+
+    /**
+     * Scope to get only active (non-archived) students.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('archived', false);
+    }
+
+    /**
+     * Scope to get only archived students.
+     */
+    public function scopeArchived($query)
+    {
+        return $query->where('archived', true);
     }
 }

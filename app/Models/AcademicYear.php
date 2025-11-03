@@ -17,6 +17,7 @@ class AcademicYear extends Model
         'start_year',
         'end_year',
         'is_current',
+        'archived',
     ];
 
     protected $casts = [
@@ -29,5 +30,21 @@ class AcademicYear extends Model
     public function students(): HasMany
     {
         return $this->hasMany(Student::class, 'academic_year_id');
+    }
+
+    /**
+     * Scope to get only active (non-archived) academic years.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('archived', false);
+    }
+
+    /**
+     * Scope to get only archived academic years.
+     */
+    public function scopeArchived($query)
+    {
+        return $query->where('archived', true);
     }
 }

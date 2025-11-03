@@ -18,7 +18,7 @@ class CourseController extends Controller
         $search = $request->query('search');
         $departmentId = $request->query('department_id');
 
-        $query = Course::with('department');
+        $query = Course::with('department')->active();
 
         if ($search) {
             $query->where('name', 'like', "%{$search}%")
@@ -115,7 +115,7 @@ class CourseController extends Controller
     }
 
     /**
-     * Delete course
+     * Archive course
      */
     public function destroy($id)
     {
@@ -125,9 +125,25 @@ class CourseController extends Controller
             return response()->json(['error' => 'Course not found'], 404);
         }
 
-        $course->delete();
+        $course->update(['archived' => true]);
 
-        return response()->json(['message' => 'Course deleted successfully']);
+        return response()->json(['message' => 'Course archived successfully']);
+    }
+
+    /**
+     * Restore course
+     */
+    public function restore($id)
+    {
+        $course = Course::find($id);
+
+        if (!$course) {
+            return response()->json(['error' => 'Course not found'], 404);
+        }
+
+        $course->update(['archived' => false]);
+
+        return response()->json(['message' => 'Course restored successfully']);
     }
 
     /**

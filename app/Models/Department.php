@@ -14,6 +14,7 @@ class Department extends Model
         'name',
         'code',
         'description',
+        'archived',
     ];
 
     /**
@@ -38,5 +39,21 @@ class Department extends Model
     public function faculty(): HasMany
     {
         return $this->hasMany(Faculty::class);
+    }
+
+    /**
+     * Scope to get only active (non-archived) departments.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('archived', false);
+    }
+
+    /**
+     * Scope to get only archived departments.
+     */
+    public function scopeArchived($query)
+    {
+        return $query->where('archived', true);
     }
 }
