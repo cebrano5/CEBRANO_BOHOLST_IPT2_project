@@ -37,7 +37,8 @@ const Settings: React.FC = () => {
   const [departmentForm, setDepartmentForm] = useState({
     name: '',
     code: '',
-    description: ''
+    description: '',
+    status: 'active'
   });
 
   const [courseForm, setCourseForm] = useState({
@@ -45,14 +46,16 @@ const Settings: React.FC = () => {
     code: '',
     description: '',
     credits: '',
-    department_id: ''
+    department_id: '',
+    status: 'active'
   });
 
   const [academicYearForm, setAcademicYearForm] = useState({
     name: '',
     start_year: '',
     end_year: '',
-    is_current: false
+    is_current: false,
+    status: 'active'
   });
 
   const tabs = [
@@ -135,7 +138,7 @@ const Settings: React.FC = () => {
       }
       setShowDepartmentForm(false);
       setEditingDepartment(null);
-      setDepartmentForm({ name: '', code: '', description: '' });
+      setDepartmentForm({ name: '', code: '', description: '', status: 'active' });
       fetchDepartments();
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to save department');
@@ -149,7 +152,8 @@ const Settings: React.FC = () => {
     setDepartmentForm({
       name: department.name || '',
       code: department.code || '',
-      description: department.description || ''
+      description: department.description || '',
+      status: department.status || 'active'
     });
     setShowDepartmentForm(true);
   };
@@ -189,7 +193,7 @@ const Settings: React.FC = () => {
       }
       setShowCourseForm(false);
       setEditingCourse(null);
-      setCourseForm({ name: '', code: '', description: '', credits: '', department_id: '' });
+      setCourseForm({ name: '', code: '', description: '', credits: '', department_id: '', status: 'active' });
       fetchCourses();
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to save course');
@@ -205,7 +209,8 @@ const Settings: React.FC = () => {
       code: course.code || '',
       description: course.description || '',
       credits: course.credits?.toString() || '',
-      department_id: course.department_id?.toString() || ''
+      department_id: course.department_id?.toString() || '',
+      status: course.status || 'active'
     });
     setShowCourseForm(true);
   };
@@ -238,7 +243,7 @@ const Settings: React.FC = () => {
       }
       setShowAcademicYearForm(false);
       setEditingAcademicYear(null);
-      setAcademicYearForm({ name: '', start_year: '', end_year: '', is_current: false });
+      setAcademicYearForm({ name: '', start_year: '', end_year: '', is_current: false, status: 'active' });
       fetchAcademicYears();
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to save academic year');
@@ -253,7 +258,8 @@ const Settings: React.FC = () => {
       name: academicYear.name || '',
       start_year: academicYear.start_year || '',
       end_year: academicYear.end_year || '',
-      is_current: academicYear.is_current || false
+      is_current: academicYear.is_current || false,
+      status: academicYear.status || 'active'
     });
     setShowAcademicYearForm(true);
   };
@@ -403,6 +409,7 @@ const Settings: React.FC = () => {
                       <TableHead>Name</TableHead>
                       <TableHead>Code</TableHead>
                       <TableHead>Description</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -412,6 +419,15 @@ const Settings: React.FC = () => {
                         <TableCell className="font-medium">{dept.name}</TableCell>
                         <TableCell>{dept.code}</TableCell>
                         <TableCell>{dept.description || 'No description'}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            dept.status === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {dept.status || 'active'}
+                          </span>
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
                             <Button
@@ -467,6 +483,7 @@ const Settings: React.FC = () => {
                       <TableHead>Code</TableHead>
                       <TableHead>Department</TableHead>
                       <TableHead>Credits</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -477,6 +494,15 @@ const Settings: React.FC = () => {
                         <TableCell>{course.code}</TableCell>
                         <TableCell>{course.department?.name || 'N/A'}</TableCell>
                         <TableCell>{course.credits || 'N/A'}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            course.status === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {course.status || 'active'}
+                          </span>
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
                             <Button
@@ -531,6 +557,7 @@ const Settings: React.FC = () => {
                       <TableHead>Name</TableHead>
                       <TableHead>Years</TableHead>
                       <TableHead>Current</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -546,6 +573,15 @@ const Settings: React.FC = () => {
                               : 'bg-gray-100 text-gray-800'
                           }`}>
                             {year.is_current ? 'Current' : 'Inactive'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            year.status === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {year.status || 'active'}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -806,6 +842,22 @@ const Settings: React.FC = () => {
               value={departmentForm.description}
               onChange={(e) => setDepartmentForm({...departmentForm, description: e.target.value})}
             />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <select
+                value={departmentForm.status}
+                onChange={(e) => setDepartmentForm({...departmentForm, status: e.target.value})}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowDepartmentForm(false)}>
                 Cancel
@@ -864,6 +916,22 @@ const Settings: React.FC = () => {
               value={courseForm.description}
               onChange={(e) => setCourseForm({...courseForm, description: e.target.value})}
             />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <select
+                value={courseForm.status}
+                onChange={(e) => setCourseForm({...courseForm, status: e.target.value})}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowCourseForm(false)}>
                 Cancel
@@ -920,6 +988,22 @@ const Settings: React.FC = () => {
                 Set as current academic year
               </label>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <select
+                value={academicYearForm.status}
+                onChange={(e) => setAcademicYearForm({...academicYearForm, status: e.target.value})}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowAcademicYearForm(false)}>
                 Cancel

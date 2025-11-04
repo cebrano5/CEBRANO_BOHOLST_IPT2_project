@@ -99,7 +99,9 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Create students
+        // Create students with categories
+        $categories = ['freshman', 'transferee', 'returnee'];
+        
         for ($i = 1; $i <= 50; $i++) {
             $user = User::create([
                 'name' => "Student Name {$i}",
@@ -116,13 +118,63 @@ class DatabaseSeeder extends Seeder
                 'course_id' => $courses[rand(0, count($courses) - 1)]->id,
                 'phone' => '555-' . str_pad($i, 4, '0', STR_PAD_LEFT),
                 'address' => "Student Address {$i}, City",
+                'category' => $categories[rand(0, count($categories) - 1)],
+            ]);
+        }
+
+        // Create many regular students
+        for ($i = 51; $i <= 200; $i++) {
+            $user = User::create([
+                'name' => "Regular Student {$i}",
+                'email' => "regular{$i}@sfms.local",
+                'password' => bcrypt('password123'),
+                'role' => 'student',
+            ]);
+
+            $student = Student::create([
+                'user_id' => $user->id,
+                'student_id' => "REG" . str_pad($i, 6, '0', STR_PAD_LEFT),
+                'department_id' => $departments[rand(0, count($departments) - 1)]->id,
+                'academic_year_id' => $years[rand(0, count($years) - 1)]->id,
+                'course_id' => $courses[rand(0, count($courses) - 1)]->id,
+                'phone' => '555-' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'address' => "Regular Student Address {$i}, City",
+                'category' => 'regular',
+            ]);
+        }
+
+        // Create many irregular students
+        for ($i = 201; $i <= 350; $i++) {
+            $user = User::create([
+                'name' => "Irregular Student {$i}",
+                'email' => "irregular{$i}@sfms.local",
+                'password' => bcrypt('password123'),
+                'role' => 'student',
+            ]);
+
+            $student = Student::create([
+                'user_id' => $user->id,
+                'student_id' => "IRR" . str_pad($i, 6, '0', STR_PAD_LEFT),
+                'department_id' => $departments[rand(0, count($departments) - 1)]->id,
+                'academic_year_id' => $years[rand(0, count($years) - 1)]->id,
+                'course_id' => $courses[rand(0, count($courses) - 1)]->id,
+                'phone' => '555-' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'address' => "Irregular Student Address {$i}, City",
+                'category' => 'irregular',
             ]);
         }
 
         $this->command->info('Database seeded successfully with test data!');
+        $this->command->info('Total Students Created: 350');
+        $this->command->info('  - Freshman/Transferee/Returnee: 50 students');
+        $this->command->info('  - Regular Students: 150 students');
+        $this->command->info('  - Irregular Students: 150 students');
+        $this->command->info('');
         $this->command->info('Test Users:');
         $this->command->info('  Admin: admin@example.com / password');
         $this->command->info('  Faculty: faculty1@example.com / password');
         $this->command->info('  Student: student1@sfms.local / password123');
+        $this->command->info('  Regular Student: regular51@sfms.local / password123');
+        $this->command->info('  Irregular Student: irregular201@sfms.local / password123');
     }
 }

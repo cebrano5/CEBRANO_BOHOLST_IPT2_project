@@ -204,6 +204,8 @@ class ReportController extends Controller
         $limit = $request->query('limit', 100);
         $departmentId = $request->query('department_id');
         $courseId = $request->query('course_id');
+        $academicYearId = $request->query('academic_year');
+        $category = $request->query('category');
 
         $query = Student::with('user', 'course', 'department', 'academicYear');
 
@@ -213,6 +215,14 @@ class ReportController extends Controller
 
         if ($courseId) {
             $query->where('course_id', $courseId);
+        }
+
+        if ($academicYearId) {
+            $query->where('academic_year_id', $academicYearId);
+        }
+
+        if ($category) {
+            $query->where('category', $category);
         }
 
         // Calculate statistics first
@@ -235,6 +245,10 @@ class ReportController extends Controller
             return ['year' => $group->first()->academicYear->name ?? 'Unknown', 'count' => $group->count()];
         })->values();
 
+        $byCategory = $allStudents->groupBy('category')->map(function($group) {
+            return ['category' => $group->first()->category ?? 'Unknown', 'count' => $group->count()];
+        })->values();
+
         $students = $query->paginate($limit);
 
         // Add academic year name to each student
@@ -251,7 +265,8 @@ class ReportController extends Controller
                     'total' => $allStudents->count(),
                     'byDepartment' => $byDepartment,
                     'byCourse' => $byCourse,
-                    'byAcademicYear' => $byAcademicYear
+                    'byAcademicYear' => $byAcademicYear,
+                    'byCategory' => $byCategory
                 ],
                 'pagination' => [
                     'total' => $students->total(),
@@ -320,6 +335,8 @@ class ReportController extends Controller
     {
         $departmentId = $request->query('department_id');
         $courseId = $request->query('course_id');
+        $academicYearId = $request->query('academic_year');
+        $category = $request->query('category');
         
         $query = Student::with('user', 'course', 'department', 'academicYear');
 
@@ -331,20 +348,29 @@ class ReportController extends Controller
             $query->where('course_id', $courseId);
         }
 
+        if ($academicYearId) {
+            $query->where('academic_year_id', $academicYearId);
+        }
+
+        if ($category) {
+            $query->where('category', $category);
+        }
+
         $students = $query->get();
 
         // Create CSV content that Excel can read
-        $csv = "Student ID,Name,Email,Department,Course,Academic Year,Phone\n";
+        $csv = "Student ID,Name,Email,Department,Course,Academic Year,Category,Phone\n";
         
         foreach ($students as $student) {
             $csv .= sprintf(
-                '"%s","%s","%s","%s","%s","%s","\'%s"' . "\n",
+                '"%s","%s","%s","%s","%s","%s","%s","\'%s"' . "\n",
                 $student->student_id ?? 'N/A',
                 $student->user->name ?? 'N/A',
                 $student->user->email ?? 'N/A',
                 $student->department->name ?? 'N/A',
                 $student->course->name ?? 'N/A',
                 $student->academicYear->name ?? 'N/A',
+                $student->category ?? 'N/A',
                 $student->phone ?? 'N/A'
             );
         }
@@ -427,6 +453,8 @@ class ReportController extends Controller
     {
         $departmentId = $request->query('department_id');
         $courseId = $request->query('course_id');
+        $academicYearId = $request->query('academic_year');
+        $category = $request->query('category');
         
         $query = Student::with('user', 'course', 'department', 'academicYear');
 
@@ -436,6 +464,14 @@ class ReportController extends Controller
 
         if ($courseId) {
             $query->where('course_id', $courseId);
+        }
+
+        if ($academicYearId) {
+            $query->where('academic_year_id', $academicYearId);
+        }
+
+        if ($category) {
+            $query->where('category', $category);
         }
 
         $students = $query->get();

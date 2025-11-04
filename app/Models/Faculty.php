@@ -17,6 +17,7 @@ class Faculty extends Model
         'employee_id',
         'department_id',
         'position',
+        'hire_date',
         'employment_type',
         'salary',
         'phone',
@@ -24,6 +25,7 @@ class Faculty extends Model
         'qualifications',
         'specializations',
         'archived',
+        'status',
     ];
 
     protected $appends = [

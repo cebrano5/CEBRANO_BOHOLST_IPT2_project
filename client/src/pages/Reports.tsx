@@ -14,7 +14,8 @@ const Reports: React.FC = () => {
   const [studentFilters, setStudentFilters] = useState({
     course_id: '',
     department_id: '',
-    academic_year: ''
+    academic_year: '',
+    category: ''
   });
   
   const [facultyFilters, setFacultyFilters] = useState({
@@ -92,6 +93,7 @@ const Reports: React.FC = () => {
       if (studentFilters.course_id) params.append('course_id', studentFilters.course_id);
       if (studentFilters.department_id) params.append('department_id', studentFilters.department_id);
       if (studentFilters.academic_year) params.append('academic_year', studentFilters.academic_year);
+      if (studentFilters.category) params.append('category', studentFilters.category);
       if (format) params.append('format', format);
       
       if (format) {
@@ -305,6 +307,19 @@ const Reports: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                
+                <select
+                  value={studentFilters.category}
+                  onChange={(e) => setStudentFilters({...studentFilters, category: e.target.value})}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">All Categories</option>
+                  <option value="freshman">Freshman</option>
+                  <option value="transferee">Transferee</option>
+                  <option value="returnee">Returnee</option>
+                  <option value="regular">Regular</option>
+                  <option value="irregular">Irregular</option>
+                </select>
               </div>
             </div>
 
@@ -456,7 +471,7 @@ const Reports: React.FC = () => {
               // Student Report Preview
               reportData.data?.students && reportData.data.students.length > 0 ? (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                     <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
                       <p className="text-sm text-blue-600">Total Students</p>
                       <p className="text-2xl font-bold text-blue-900">{reportData.data?.statistics?.total || 0}</p>
@@ -506,6 +521,21 @@ const Reports: React.FC = () => {
                         </div>
                       )}
                     </div>
+                    <div className="p-3 bg-red-50 dark:bg-red-950 rounded-lg">
+                      <p className="text-sm text-red-600">By Category</p>
+                      <p className="text-sm text-red-900">
+                        {reportData.data?.statistics?.byCategory && Array.isArray(reportData.data.statistics.byCategory)
+                          ? reportData.data.statistics.byCategory.length
+                          : 0} categories
+                      </p>
+                      {reportData.data?.statistics?.byCategory && reportData.data.statistics.byCategory.length > 0 && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                          {reportData.data.statistics.byCategory.slice(0, 2).map((item: any) => (
+                            <div key={item.category}>{item.category}: {item.count}</div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   
                   <Table>
@@ -516,6 +546,7 @@ const Reports: React.FC = () => {
                         <TableHead>Course</TableHead>
                         <TableHead>Department</TableHead>
                         <TableHead>Academic Year</TableHead>
+                        <TableHead>Category</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -526,6 +557,18 @@ const Reports: React.FC = () => {
                           <TableCell>{student.course_name || student.course_code || 'N/A'}</TableCell>
                           <TableCell>{student.department_name || 'N/A'}</TableCell>
                           <TableCell>{student.academic_year_name || 'N/A'}</TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              student.category === 'freshman' ? 'bg-blue-100 text-blue-800' :
+                              student.category === 'transferee' ? 'bg-green-100 text-green-800' :
+                              student.category === 'returnee' ? 'bg-purple-100 text-purple-800' :
+                              student.category === 'regular' ? 'bg-orange-100 text-orange-800' :
+                              student.category === 'irregular' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {student.category ? student.category.charAt(0).toUpperCase() + student.category.slice(1) : 'N/A'}
+                            </span>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

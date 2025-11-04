@@ -66,6 +66,7 @@
                 <th>Department</th>
                 <th>Course</th>
                 <th>Academic Year</th>
+                <th>Category</th>
             </tr>
         </thead>
         <tbody>
@@ -76,6 +77,7 @@
                 <td>{{ $student->department->name ?? 'N/A' }}</td>
                 <td>{{ $student->course->name ?? 'N/A' }}</td>
                 <td>{{ $student->academicYear->name ?? 'N/A' }}</td>
+                <td>{{ ucfirst($student->category) ?? 'N/A' }}</td>
             </tr>
             @endforeach
         </tbody>

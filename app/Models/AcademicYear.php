@@ -18,6 +18,7 @@ class AcademicYear extends Model
         'end_year',
         'is_current',
         'archived',
+        'status',
     ];
 
     protected $casts = [

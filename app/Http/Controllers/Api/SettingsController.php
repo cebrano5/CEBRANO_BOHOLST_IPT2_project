@@ -108,6 +108,7 @@ class SettingsController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:departments,code,' . $id,
             'description' => 'nullable|string',
+            'status' => 'sometimes|in:active,inactive',
         ]);
 
         if ($validator->fails()) {
@@ -185,6 +186,7 @@ class SettingsController extends Controller
             'start_year' => 'required|integer|min:2000|max:2100',
             'end_year' => 'required|integer|min:2000|max:2100|gte:start_year',
             'is_current' => 'boolean',
+            'status' => 'sometimes|in:active,inactive',
         ]);
 
         if ($validator->fails()) {

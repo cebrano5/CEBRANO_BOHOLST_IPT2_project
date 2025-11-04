@@ -18,6 +18,7 @@ class Course extends Model
         'credits',
         'description',
         'archived',
+        'status',
     ];
 
     /**

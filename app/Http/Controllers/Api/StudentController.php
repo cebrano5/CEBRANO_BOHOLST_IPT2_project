@@ -21,6 +21,7 @@ class StudentController extends Controller
         $search = $request->query('search');
         $departmentId = $request->query('department_id');
         $courseId = $request->query('course_id');
+        $category = $request->query('category');
 
         $query = Student::with('user', 'course', 'department', 'academicYear')->active();
 
@@ -37,6 +38,10 @@ class StudentController extends Controller
 
         if ($courseId) {
             $query->where('course_id', $courseId);
+        }
+
+        if ($category) {
+            $query->where('category', $category);
         }
 
         $total = $query->count();
@@ -80,8 +85,15 @@ class StudentController extends Controller
             'course_id' => 'sometimes|integer|exists:courses,id',
             'department_id' => 'sometimes|integer|exists:departments,id',
             'academic_year' => 'sometimes|integer|exists:academic_years,id',
+            'enrollment_date' => 'sometimes|date',
             'phone' => 'sometimes|string|max:20',
             'address' => 'sometimes|string',
+            'category' => 'sometimes|in:freshman,other1,other2',
+            'academic_performance_image_url' => 'sometimes|url',
+            'completion_diploma_image_url' => 'sometimes|url',
+            'character_certificate_image_url' => 'sometimes|url',
+            'admission_test_image_url' => 'sometimes|url',
+            'application_form_image_url' => 'sometimes|url',
         ]);
 
         // Create user first
@@ -99,8 +111,25 @@ class StudentController extends Controller
             'course_id' => $validated['course_id'] ?? null,
             'department_id' => $validated['department_id'] ?? null,
             'academic_year_id' => $validated['academic_year'] ?? null,
+            'date_enrolled' => $validated['enrollment_date'] ?? null,
             'phone' => $validated['phone'] ?? null,
             'address' => $validated['address'] ?? null,
+            'category' => $validated['category'] ?? 'freshman',
+            'academic_performance_image_url' => $validated['academic_performance_image_url'] ?? null,
+            'completion_diploma_image_url' => $validated['completion_diploma_image_url'] ?? null,
+            'character_certificate_image_url' => $validated['character_certificate_image_url'] ?? null,
+            'admission_test_image_url' => $validated['admission_test_image_url'] ?? null,
+            'application_form_image_url' => $validated['application_form_image_url'] ?? null,
+            'college_academic_record_tor_image_url' => $validated['college_academic_record_tor_image_url'] ?? null,
+            'eligibility_to_transfer_image_url' => $validated['eligibility_to_transfer_image_url'] ?? null,
+            'course_evaluation_image_url' => $validated['course_evaluation_image_url'] ?? null,
+            'good_standing_status_image_url' => $validated['good_standing_status_image_url'] ?? null,
+            'prior_education_proof_image_url' => $validated['prior_education_proof_image_url'] ?? null,
+            'marital_status_image_url' => $validated['marital_status_image_url'] ?? null,
+            'request_to_reenroll_image_url' => $validated['request_to_reenroll_image_url'] ?? null,
+            'account_clearance_image_url' => $validated['account_clearance_image_url'] ?? null,
+            'academic_review_image_url' => $validated['academic_review_image_url'] ?? null,
+            'health_status_image_url' => $validated['health_status_image_url'] ?? null,
         ]);
 
         return response()->json(['student' => $student->load('user', 'course', 'department', 'academicYear')], 201);
@@ -123,8 +152,36 @@ class StudentController extends Controller
             'course_id' => 'sometimes|integer|exists:courses,id',
             'department_id' => 'sometimes|integer|exists:departments,id',
             'academic_year' => 'sometimes|integer|exists:academic_years,id',
+            'enrollment_date' => 'sometimes|date',
             'phone' => 'sometimes|string|max:20',
             'address' => 'sometimes|string',
+            'status' => 'sometimes|in:active,inactive,graduated',
+            'category' => 'sometimes|in:freshman,transferee,returnee,regular,irregular',
+            'academic_performance_image_url' => 'sometimes|nullable|string|url',
+            'completion_diploma_image_url' => 'sometimes|nullable|string|url',
+            'character_certificate_image_url' => 'sometimes|nullable|string|url',
+            'admission_test_image_url' => 'sometimes|nullable|string|url',
+            'application_form_image_url' => 'sometimes|nullable|string|url',
+            'college_academic_record_tor_image_url' => 'sometimes|nullable|string|url',
+            'eligibility_to_transfer_image_url' => 'sometimes|nullable|string|url',
+            'course_evaluation_image_url' => 'sometimes|nullable|string|url',
+            'good_standing_status_image_url' => 'sometimes|nullable|string|url',
+            'prior_education_proof_image_url' => 'sometimes|nullable|string|url',
+            'marital_status_image_url' => 'sometimes|nullable|string|url',
+            'request_to_reenroll_image_url' => 'sometimes|nullable|string|url',
+            'account_clearance_image_url' => 'sometimes|nullable|string|url',
+            'academic_review_image_url' => 'sometimes|nullable|string|url',
+            'health_status_image_url' => 'sometimes|nullable|string|url',
+            'college_academic_record_tor_image_url' => 'sometimes|nullable|string|url',
+            'eligibility_to_transfer_image_url' => 'sometimes|nullable|string|url',
+            'course_evaluation_image_url' => 'sometimes|nullable|string|url',
+            'good_standing_status_image_url' => 'sometimes|nullable|string|url',
+            'prior_education_proof_image_url' => 'sometimes|nullable|string|url',
+            'marital_status_image_url' => 'sometimes|nullable|string|url',
+            'request_to_reenroll_image_url' => 'sometimes|nullable|string|url',
+            'account_clearance_image_url' => 'sometimes|nullable|string|url',
+            'academic_review_image_url' => 'sometimes|nullable|string|url',
+            'health_status_image_url' => 'sometimes|nullable|string|url',
         ]);
 
         // Update user if name or email provided
@@ -140,6 +197,10 @@ class StudentController extends Controller
         if (isset($studentData['academic_year'])) {
             $studentData['academic_year_id'] = $studentData['academic_year'];
             unset($studentData['academic_year']);
+        }
+        if (isset($studentData['enrollment_date'])) {
+            $studentData['date_enrolled'] = $studentData['enrollment_date'];
+            unset($studentData['enrollment_date']);
         }
 
         // Update student record

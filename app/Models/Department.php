@@ -15,6 +15,7 @@ class Department extends Model
         'code',
         'description',
         'archived',
+        'status',
     ];
 
     /**

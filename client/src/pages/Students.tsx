@@ -18,6 +18,7 @@ const Students: React.FC = () => {
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterCourse, setFilterCourse] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalStudents, setTotalStudents] = useState(0);
@@ -32,7 +33,24 @@ const Students: React.FC = () => {
     academic_year: '', // Manual text input
     enrollment_date: '',
     phone: '',
-    address: ''
+    address: '',
+    status: 'active',
+    category: 'freshman',
+    academic_performance_image_url: '',
+    completion_diploma_image_url: '',
+    character_certificate_image_url: '',
+    admission_test_image_url: '',
+    application_form_image_url: '',
+    college_academic_record_tor_image_url: '',
+    eligibility_to_transfer_image_url: '',
+    course_evaluation_image_url: '',
+    good_standing_status_image_url: '',
+    prior_education_proof_image_url: '',
+    marital_status_image_url: '',
+    request_to_reenroll_image_url: '',
+    account_clearance_image_url: '',
+    academic_review_image_url: '',
+    health_status_image_url: ''
   });
   const [departments, setDepartments] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
@@ -76,7 +94,7 @@ const Students: React.FC = () => {
     }
   };
 
-  const fetchStudents = async (search = '', departmentFilter = '', courseFilter = '', page = 1) => {
+  const fetchStudents = async (search = '', departmentFilter = '', courseFilter = '', categoryFilter = '', page = 1) => {
     try {
       setLoading(true);
       setError('');
@@ -86,6 +104,7 @@ const Students: React.FC = () => {
       if (search) params.append('search', search);
       if (departmentFilter) params.append('department_id', departmentFilter);
       if (courseFilter) params.append('course_id', courseFilter);
+      if (categoryFilter) params.append('category', categoryFilter);
       params.append('page', page.toString());
       params.append('limit', itemsPerPage.toString());
       
@@ -161,7 +180,7 @@ const Students: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchStudents(searchTerm, filterDepartment, filterCourse, 1);
+    fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, 1);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,15 +195,32 @@ const Students: React.FC = () => {
         email: '',
         password: '',
         student_id: '',
-        course_id: '',
-        department_id: '',
+        course_id: '1',
+        department_id: '1',
         academic_year: '',
         enrollment_date: '',
         phone: '',
-        address: ''
+        address: '',
+        status: 'active',
+        category: 'freshman',
+        academic_performance_image_url: '',
+        completion_diploma_image_url: '',
+        character_certificate_image_url: '',
+        admission_test_image_url: '',
+        application_form_image_url: '',
+        college_academic_record_tor_image_url: '',
+        eligibility_to_transfer_image_url: '',
+        course_evaluation_image_url: '',
+        good_standing_status_image_url: '',
+        prior_education_proof_image_url: '',
+        marital_status_image_url: '',
+        request_to_reenroll_image_url: '',
+        account_clearance_image_url: '',
+        academic_review_image_url: '',
+        health_status_image_url: ''
       });
       setAvailableCourses(courses);
-      fetchStudents(searchTerm, filterDepartment, filterCourse, 1);
+      fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, 1);
       alert('Student added successfully!');
     } catch (error: any) {
       console.error('Error adding student:', error);
@@ -217,7 +253,7 @@ const Students: React.FC = () => {
   // Handle filter changes
   const handleFilterChange = () => {
     setCurrentPage(1);
-    fetchStudents(searchTerm, filterDepartment, filterCourse, 1);
+    fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, 1);
   };
 
   // Handle edit student
@@ -233,7 +269,24 @@ const Students: React.FC = () => {
       academic_year: student.academic_year_id?.toString() || '',
       enrollment_date: student.date_enrolled || '',
       phone: student.phone || '',
-      address: student.address || ''
+      address: student.address || '',
+      status: student.status || 'active',
+      category: student.category || 'freshman',
+      academic_performance_image_url: student.academic_performance_image_url || '',
+      completion_diploma_image_url: student.completion_diploma_image_url || '',
+      character_certificate_image_url: student.character_certificate_image_url || '',
+      admission_test_image_url: student.admission_test_image_url || '',
+      application_form_image_url: student.application_form_image_url || '',
+      college_academic_record_tor_image_url: student.college_academic_record_tor_image_url || '',
+      eligibility_to_transfer_image_url: student.eligibility_to_transfer_image_url || '',
+      course_evaluation_image_url: student.course_evaluation_image_url || '',
+      good_standing_status_image_url: student.good_standing_status_image_url || '',
+      prior_education_proof_image_url: student.prior_education_proof_image_url || '',
+      marital_status_image_url: student.marital_status_image_url || '',
+      request_to_reenroll_image_url: student.request_to_reenroll_image_url || '',
+      account_clearance_image_url: student.account_clearance_image_url || '',
+      academic_review_image_url: student.academic_review_image_url || '',
+      health_status_image_url: student.health_status_image_url || ''
     });
     setShowEditForm(true);
   };
@@ -259,9 +312,26 @@ const Students: React.FC = () => {
         academic_year: '',
         enrollment_date: '',
         phone: '',
-        address: ''
+        address: '',
+        status: 'active',
+        category: 'freshman',
+        academic_performance_image_url: '',
+        completion_diploma_image_url: '',
+        character_certificate_image_url: '',
+        admission_test_image_url: '',
+        application_form_image_url: '',
+        college_academic_record_tor_image_url: '',
+        eligibility_to_transfer_image_url: '',
+        course_evaluation_image_url: '',
+        good_standing_status_image_url: '',
+        prior_education_proof_image_url: '',
+        marital_status_image_url: '',
+        request_to_reenroll_image_url: '',
+        account_clearance_image_url: '',
+        academic_review_image_url: '',
+        health_status_image_url: ''
       });
-      fetchStudents(searchTerm, filterDepartment, filterCourse, currentPage);
+      fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, currentPage);
       alert('Student updated successfully!');
     } catch (error: any) {
       console.error('Error updating student:', error);
@@ -281,7 +351,7 @@ const Students: React.FC = () => {
       setLoading(true);
       const api = getAxiosClient();
       await api.delete(`/students/${studentId}`);
-      fetchStudents(searchTerm, filterDepartment, filterCourse, currentPage);
+      fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, currentPage);
       alert('Student archived successfully!');
     } catch (error: any) {
       console.error('Error archiving student:', error);
@@ -310,7 +380,24 @@ const Students: React.FC = () => {
             academic_year: '',
             enrollment_date: '',
             phone: '',
-            address: ''
+            address: '',
+            status: 'active',
+            category: 'freshman',
+            academic_performance_image_url: '',
+            completion_diploma_image_url: '',
+            character_certificate_image_url: '',
+            admission_test_image_url: '',
+            application_form_image_url: '',
+            college_academic_record_tor_image_url: '',
+            eligibility_to_transfer_image_url: '',
+            course_evaluation_image_url: '',
+            good_standing_status_image_url: '',
+            prior_education_proof_image_url: '',
+            marital_status_image_url: '',
+            request_to_reenroll_image_url: '',
+            account_clearance_image_url: '',
+            academic_review_image_url: '',
+            health_status_image_url: ''
           });
           setAvailableCourses(courses);
           setShowAddForm(true);
@@ -340,8 +427,8 @@ const Students: React.FC = () => {
             </form>
             
             {/* Filters */}
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Filter by Department
                 </label>
@@ -359,7 +446,7 @@ const Students: React.FC = () => {
                 </select>
               </div>
               
-              <div className="flex-1">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Filter by Course
                 </label>
@@ -377,6 +464,27 @@ const Students: React.FC = () => {
                 </select>
               </div>
               
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Filter by Category
+                </label>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">All Categories</option>
+                  <option value="freshman">Freshman</option>
+                  <option value="transferee">Transferee</option>
+                  <option value="returnee">Returnee</option>
+                  <option value="regular">Regular</option>
+                  <option value="irregular">Irregular</option>
+                </select>
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-4 justify-end">
               <Button onClick={handleFilterChange} variant="outline">
                 <Filter className="mr-2 h-4 w-4" />
                 Apply Filters
@@ -386,6 +494,7 @@ const Students: React.FC = () => {
                 onClick={() => {
                   setFilterDepartment('');
                   setFilterCourse('');
+                  setFilterCategory('');
                   setSearchTerm('');
                   fetchStudents();
                 }} 
@@ -432,6 +541,7 @@ const Students: React.FC = () => {
                   <TableHead>Email</TableHead>
                   <TableHead>Course</TableHead>
                   <TableHead>Department</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Academic Year</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
@@ -454,6 +564,18 @@ const Students: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       {student.department_name || 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        student.category === 'freshman' ? 'bg-blue-100 text-blue-800' :
+                        student.category === 'transferee' ? 'bg-green-100 text-green-800' :
+                        student.category === 'returnee' ? 'bg-purple-100 text-purple-800' :
+                        student.category === 'regular' ? 'bg-orange-100 text-orange-800' :
+                        student.category === 'irregular' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {student.category ? student.category.charAt(0).toUpperCase() + student.category.slice(1) : 'N/A'}
+                      </span>
                     </TableCell>
                     <TableCell>
                       {student.academic_year?.name || 'N/A'}
@@ -503,14 +625,14 @@ const Students: React.FC = () => {
               <Button
                 variant="outline"
                 disabled={currentPage === 1}
-                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, 1)}
+                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, 1)}
               >
                 First
               </Button>
               <Button
                 variant="outline"
                 disabled={currentPage === 1}
-                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, currentPage - 1)}
+                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, currentPage - 1)}
               >
                 Previous
               </Button>
@@ -520,7 +642,7 @@ const Students: React.FC = () => {
                 <Button
                   key={page}
                   variant={currentPage === page ? "default" : "outline"}
-                  onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, page)}
+                  onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, page)}
                   className="min-w-10"
                 >
                   {page}
@@ -530,14 +652,14 @@ const Students: React.FC = () => {
               <Button
                 variant="outline"
                 disabled={currentPage === totalPages}
-                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, currentPage + 1)}
+                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, currentPage + 1)}
               >
                 Next
               </Button>
               <Button
                 variant="outline"
                 disabled={currentPage === totalPages}
-                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, totalPages)}
+                onClick={() => fetchStudents(searchTerm, filterDepartment, filterCourse, filterCategory, totalPages)}
               >
                 Last
               </Button>
@@ -693,6 +815,157 @@ const Students: React.FC = () => {
                 onChange={handleInputChange}
               />
             </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Student Category
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="freshman">Freshman</option>
+                <option value="transferee">Transferee</option>
+                <option value="returnee">Returnee</option>
+                <option value="regular">Regular</option>
+                <option value="irregular">Irregular</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="graduated">Graduated</option>
+              </select>
+            </div>
+
+            {formData.category === 'freshman' && (
+              <div className="space-y-4">
+                <h4 className="text-md font-medium text-gray-900 dark:text-white">Admission Requirements (Image URLs)</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <Input
+                    name="academic_performance_image_url"
+                    placeholder="Academic Performance Image URL"
+                    value={formData.academic_performance_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="completion_diploma_image_url"
+                    placeholder="Completion Diploma Image URL"
+                    value={formData.completion_diploma_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="character_certificate_image_url"
+                    placeholder="Character Certificate Image URL"
+                    value={formData.character_certificate_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="admission_test_image_url"
+                    placeholder="Admission Test Image URL"
+                    value={formData.admission_test_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="application_form_image_url"
+                    placeholder="Application Form Image URL"
+                    value={formData.application_form_image_url}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            )}
+
+            {formData.category === 'transferee' && (
+              <div className="space-y-4">
+                <h4 className="text-md font-medium text-gray-900 dark:text-white">Transferee Requirements (Image URLs)</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <Input
+                    name="college_academic_record_tor_image_url"
+                    placeholder="College Academic Record (TOR) Image URL"
+                    value={formData.college_academic_record_tor_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="eligibility_to_transfer_image_url"
+                    placeholder="Eligibility to Transfer (Honorable Dismissal) Image URL"
+                    value={formData.eligibility_to_transfer_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="course_evaluation_image_url"
+                    placeholder="Course Evaluation (Detailed Course Descriptions/Syllabus) Image URL"
+                    value={formData.course_evaluation_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="good_standing_status_image_url"
+                    placeholder="Good Standing Status (Certificate of Good Moral Character) Image URL"
+                    value={formData.good_standing_status_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="prior_education_proof_image_url"
+                    placeholder="Prior Education Proof (Official High School Transcript/Form 137) Image URL"
+                    value={formData.prior_education_proof_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="marital_status_image_url"
+                    placeholder="Marital Status (Photocopy of Marriage Certificate) Image URL"
+                    value={formData.marital_status_image_url}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            )}
+
+            {formData.category === 'returnee' && (
+              <div className="space-y-4">
+                <h4 className="text-md font-medium text-gray-900 dark:text-white">Returnee Requirements (Image URLs)</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <Input
+                    name="request_to_reenroll_image_url"
+                    placeholder="Request to Re-enroll (Formal Letter of Intent for Readmission) Image URL"
+                    value={formData.request_to_reenroll_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="account_clearance_image_url"
+                    placeholder="Account Clearance (Clearance Slip from Registrar) Image URL"
+                    value={formData.account_clearance_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="academic_review_image_url"
+                    placeholder="Academic Review (Review of Last Scholastic Standing) Image URL"
+                    value={formData.academic_review_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="health_status_image_url"
+                    placeholder="Health Status (Updated Medical Clearance) Image URL"
+                    value={formData.health_status_image_url}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            )}
+            
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
                 Cancel
@@ -831,6 +1104,156 @@ const Students: React.FC = () => {
                 onChange={handleInputChange}
               />
             </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Student Category
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="freshman">Freshman</option>
+                <option value="transferee">Transferee</option>
+                <option value="returnee">Returnee</option>
+                <option value="regular">Regular</option>
+                <option value="irregular">Irregular</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="graduated">Graduated</option>
+              </select>
+            </div>
+
+            {formData.category === 'freshman' && (
+              <div className="space-y-4">
+                <h4 className="text-md font-medium text-gray-900 dark:text-white">Admission Requirements (Image URLs)</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <Input
+                    name="academic_performance_image_url"
+                    placeholder="Academic Performance Image URL"
+                    value={formData.academic_performance_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="completion_diploma_image_url"
+                    placeholder="Completion Diploma Image URL"
+                    value={formData.completion_diploma_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="character_certificate_image_url"
+                    placeholder="Character Certificate Image URL"
+                    value={formData.character_certificate_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="admission_test_image_url"
+                    placeholder="Admission Test Image URL"
+                    value={formData.admission_test_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="application_form_image_url"
+                    placeholder="Application Form Image URL"
+                    value={formData.application_form_image_url}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            )}
+
+            {formData.category === 'transferee' && (
+              <div className="space-y-4">
+                <h4 className="text-md font-medium text-gray-900 dark:text-white">Transferee Requirements (Image URLs)</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <Input
+                    name="college_academic_record_tor_image_url"
+                    placeholder="College Academic Record (TOR) Image URL"
+                    value={formData.college_academic_record_tor_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="eligibility_to_transfer_image_url"
+                    placeholder="Eligibility to Transfer (Honorable Dismissal) Image URL"
+                    value={formData.eligibility_to_transfer_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="course_evaluation_image_url"
+                    placeholder="Course Evaluation (Detailed Course Descriptions/Syllabus) Image URL"
+                    value={formData.course_evaluation_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="good_standing_status_image_url"
+                    placeholder="Good Standing Status (Certificate of Good Moral Character) Image URL"
+                    value={formData.good_standing_status_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="prior_education_proof_image_url"
+                    placeholder="Prior Education Proof (Official High School Transcript/Form 137) Image URL"
+                    value={formData.prior_education_proof_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="marital_status_image_url"
+                    placeholder="Marital Status (Photocopy of Marriage Certificate) Image URL"
+                    value={formData.marital_status_image_url}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            )}
+
+            {formData.category === 'returnee' && (
+              <div className="space-y-4">
+                <h4 className="text-md font-medium text-gray-900 dark:text-white">Returnee Requirements (Image URLs)</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <Input
+                    name="request_to_reenroll_image_url"
+                    placeholder="Request to Re-enroll (Formal Letter of Intent for Readmission) Image URL"
+                    value={formData.request_to_reenroll_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="account_clearance_image_url"
+                    placeholder="Account Clearance (Clearance Slip from Registrar) Image URL"
+                    value={formData.account_clearance_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="academic_review_image_url"
+                    placeholder="Academic Review (Review of Last Scholastic Standing) Image URL"
+                    value={formData.academic_review_image_url}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    name="health_status_image_url"
+                    placeholder="Health Status (Updated Medical Clearance) Image URL"
+                    value={formData.health_status_image_url}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            )}
             
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowEditForm(false)}>

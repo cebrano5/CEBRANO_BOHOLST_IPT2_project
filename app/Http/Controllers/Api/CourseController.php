@@ -107,6 +107,7 @@ class CourseController extends Controller
             'department_id' => 'nullable|integer|exists:departments,id',
             'credits' => 'nullable|integer|min:1|max:6',
             'description' => 'sometimes|string',
+            'status' => 'sometimes|in:active,inactive',
         ]);
 
         $course->update($validated);

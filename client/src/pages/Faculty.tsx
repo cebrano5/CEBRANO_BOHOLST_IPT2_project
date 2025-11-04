@@ -35,7 +35,8 @@ const Faculty: React.FC = () => {
     qualifications: '',
     specializations: '',
     phone: '',
-    address: ''
+    address: '',
+    status: 'active'
   });
 
   const fetchDepartments = async () => {
@@ -117,7 +118,8 @@ const Faculty: React.FC = () => {
         qualifications: '',
         specializations: '',
         phone: '',
-        address: ''
+        address: '',
+        status: 'active'
       });
       fetchFaculty(searchTerm, filterDepartment, 1);
       alert('Faculty added successfully!');
@@ -158,7 +160,8 @@ const Faculty: React.FC = () => {
       qualifications: facultyMember.qualifications || '',
       specializations: facultyMember.specializations || '',
       phone: facultyMember.phone || '',
-      address: facultyMember.address || ''
+      address: facultyMember.address || '',
+      status: facultyMember.status || 'active'
     });
     setShowEditForm(true);
   };
@@ -187,7 +190,8 @@ const Faculty: React.FC = () => {
         qualifications: '',
         specializations: '',
         phone: '',
-        address: ''
+        address: '',
+        status: 'active'
       });
       fetchFaculty(searchTerm, filterDepartment, currentPage);
       alert('Faculty updated successfully!');
@@ -576,6 +580,22 @@ const Faculty: React.FC = () => {
               value={formData.specializations}
               onChange={handleInputChange}
             />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
                 Cancel
@@ -729,6 +749,22 @@ const Faculty: React.FC = () => {
               onChange={handleInputChange}
             />
             
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowEditForm(false)}>
                 Cancel
