@@ -71,15 +71,15 @@ class FacultyController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6',
             'employee_id' => 'required|string|unique:faculty',
-            'department_id' => 'sometimes|integer|exists:departments,id',
-            'position' => 'sometimes|string|max:100',
-            'hire_date' => 'sometimes|date',
-            'employment_type' => 'sometimes|in:full_time,part_time,contract',
-            'salary' => 'sometimes|numeric',
-            'phone' => 'sometimes|string|max:20',
-            'address' => 'sometimes|string',
-            'qualifications' => 'sometimes|string',
-            'specializations' => 'sometimes|string',
+            'department_id' => 'nullable|integer|exists:departments,id',
+            'position' => 'nullable|string|max:100',
+            'hire_date' => 'nullable|date',
+            'employment_type' => 'nullable|in:full_time,part_time,contract',
+            'salary' => 'nullable|numeric',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+            'qualifications' => 'nullable|string',
+            'specializations' => 'nullable|string',
         ]);
 
         // Create user first
@@ -105,7 +105,11 @@ class FacultyController extends Controller
             'specializations' => $validated['specializations'] ?? null,
         ]);
 
-        return response()->json(['faculty' => $faculty->load('user', 'department')], 201);
+        return response()->json([
+            'success' => true,
+            'data' => $faculty->load('user', 'department'),
+            'message' => 'Faculty member created successfully'
+        ], 201);
     }
 
     /**
@@ -116,22 +120,22 @@ class FacultyController extends Controller
         $faculty = Faculty::find($id);
 
         if (!$faculty) {
-            return response()->json(['error' => 'Faculty member not found'], 404);
+            return response()->json(['success' => false, 'error' => 'Faculty member not found'], 404);
         }
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $faculty->user_id,
-            'department_id' => 'sometimes|integer|exists:departments,id',
-            'position' => 'sometimes|string|max:100',
-            'hire_date' => 'sometimes|date',
-            'employment_type' => 'sometimes|in:full_time,part_time,contract',
-            'salary' => 'sometimes|numeric',
-            'phone' => 'sometimes|string|max:20',
-            'address' => 'sometimes|string',
+            'department_id' => 'nullable|integer|exists:departments,id',
+            'position' => 'nullable|string|max:100',
+            'hire_date' => 'nullable|date',
+            'employment_type' => 'nullable|in:full_time,part_time,contract',
+            'salary' => 'nullable|numeric',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
             'status' => 'sometimes|in:active,inactive',
-            'qualifications' => 'sometimes|string',
-            'specializations' => 'sometimes|string',
+            'qualifications' => 'nullable|string',
+            'specializations' => 'nullable|string',
         ]);
 
         // Update user if name or email provided
@@ -145,7 +149,11 @@ class FacultyController extends Controller
         // Update faculty record
         $faculty->update($validated);
 
-        return response()->json(['faculty' => $faculty->load('user', 'department')]);
+        return response()->json([
+            'success' => true,
+            'data' => $faculty->load('user', 'department'),
+            'message' => 'Faculty member updated successfully'
+        ]);
     }
 
     /**

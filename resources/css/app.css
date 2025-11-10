@@ -23,8 +23,8 @@
 
 @font-face {
   font-family: 'Inter';
-  src: local('Inter SemiBold'), local('Inter-SemiBold'),
-       url('/fonts/Inter-SemiBold.woff2') format('woff2');
+  src: local('Inter Medium'), local('Inter-Medium'),
+       url('/fonts/Inter-Medium.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -141,4 +141,32 @@ body, html {
 
 .dark .react-select__option--is-focused {
   background-color: hsl(var(--accent));
+}
+
+/* Form select styling */
+.form-select {
+  @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background;
+  @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
+  @apply placeholder:text-muted-foreground;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  @apply disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }

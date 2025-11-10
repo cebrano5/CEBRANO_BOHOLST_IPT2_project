@@ -71,23 +71,44 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|unique:courses|max:20',
-            'department_id' => 'nullable|integer|exists:departments,id',
-            'credits' => 'nullable|integer|min:1|max:6',
-            'description' => 'sometimes|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'code' => 'required|string|unique:courses|max:20',
+                'department_id' => 'nullable|integer|exists:departments,id',
+                'credits' => 'nullable|integer|min:1|max:6',
+                'description' => 'nullable|string',
+                'status' => 'nullable|in:active,inactive',
+            ]);
 
-        $course = Course::create([
-            'name' => $validated['name'],
-            'code' => $validated['code'],
-            'department_id' => $validated['department_id'] ?? null,
-            'credits' => $validated['credits'] ?? 3,
-            'description' => $validated['description'] ?? null,
-        ]);
+            $course = Course::create([
+                'name' => $validated['name'],
+                'code' => $validated['code'],
+                'department_id' => $validated['department_id'] ?? null,
+                'credits' => $validated['credits'] ?? 3,
+                'description' => $validated['description'] ?? null,
+                'status' => $validated['status'] ?? 'active',
+            ]);
 
-        return response()->json(['course' => $course->load('department')], 201);
+            return response()->json([
+                'success' => true,
+                'data' => $course->load('department'),
+                'message' => 'Course created successfully'
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Course creation error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create course',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -98,7 +119,7 @@ class CourseController extends Controller
         $course = Course::find($id);
 
         if (!$course) {
-            return response()->json(['error' => 'Course not found'], 404);
+            return response()->json(['success' => false, 'error' => 'Course not found'], 404);
         }
 
         $validated = $request->validate([
@@ -106,13 +127,17 @@ class CourseController extends Controller
             'code' => 'sometimes|string|unique:courses,code,' . $id . '|max:20',
             'department_id' => 'nullable|integer|exists:departments,id',
             'credits' => 'nullable|integer|min:1|max:6',
-            'description' => 'sometimes|string',
+            'description' => 'nullable|string',
             'status' => 'sometimes|in:active,inactive',
         ]);
 
         $course->update($validated);
 
-        return response()->json(['course' => $course->load('department')]);
+        return response()->json([
+            'success' => true,
+            'data' => $course->load('department'),
+            'message' => 'Course updated successfully'
+        ]);
     }
 
     /**

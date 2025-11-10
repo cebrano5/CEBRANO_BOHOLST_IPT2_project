@@ -21,20 +21,44 @@ const Faculty = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [departments, setDepartments] = useState([]);
+
+  // Fetch departments for filter
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await axios.get('/api/departments');
+        setDepartments(response.data.data || []);
+      } catch (error) {
+        console.error('Error fetching departments:', error);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   const fetchFaculty = async (page = 1) => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
-        page,
-        per_page: itemsPerPage,
-        search: searchTerm,
-        department: filterDepartment
-      });
+      const params = new URLSearchParams();
+      params.append('page', page);
+      params.append('limit', itemsPerPage);
+      
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+      
+      if (filterDepartment) {
+        params.append('department_id', filterDepartment);
+      }
 
-      const response = await axios.get('/api/faculty?' + params);
-      setFaculty(response.data.data);
-      setTotalPages(Math.ceil(response.data.total / itemsPerPage));
+      const response = await axios.get('/api/faculty?' + params.toString());
+      
+      // Handle the response format from backend
+      const facultyData = response.data.faculty || response.data.data || [];
+      const pagination = response.data.pagination || {};
+      
+      setFaculty(facultyData);
+      setTotalPages(pagination.pages || Math.ceil((pagination.total || 0) / itemsPerPage));
       setError('');
     } catch (error) {
       setError('Failed to fetch faculty members');
@@ -56,12 +80,20 @@ const Faculty = () => {
 
   const handleAddFaculty = async (formData) => {
     try {
-      await axios.post('/api/faculty', formData);
-      setShowAddForm(false);
-      fetchFaculty(currentPage);
+      const response = await axios.post('/api/faculty', formData);
+      if (response.data.success) {
+        alert('Faculty member added successfully!');
+        setShowAddForm(false);
+        fetchFaculty(currentPage);
+      }
     } catch (error) {
-      setError('Failed to add faculty member');
       console.error('Error adding faculty:', error);
+      console.error('Error response:', error.response?.data);
+      const errorMsg = error.response?.data?.errors 
+        ? Object.values(error.response.data.errors).flat().join('\n')
+        : error.response?.data?.message || 'Failed to add faculty member';
+      alert(errorMsg);
+      throw error; // Re-throw to let the form handle it
     }
   };
 
@@ -99,12 +131,19 @@ const Faculty = () => {
 
   return (
     <AnimatedPage className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Faculty</h1>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Faculty Management</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage faculty members and their information</p>
+        </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
           Add Faculty
         </button>
       </div>
@@ -123,11 +162,18 @@ const Faculty = () => {
               />
               <select
                 value={filterDepartment}
-                onChange={(e) => setFilterDepartment(e.target.value)}
-                className="form-select"
+                onChange={(e) => {
+                  setFilterDepartment(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="form-select block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
               >
                 <option value="">All Departments</option>
-                {/* Department options would go here */}
+                {departments.map(dept => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </option>
+                ))}
               </select>
               <button type="submit" className="bg-primary text-white px-4 py-2 rounded-md">
                 Search
@@ -157,49 +203,57 @@ const Faculty = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {faculty.map((member) => (
-              <TableRow key={member.id}>
-                <TableCell>{member.faculty_id}</TableCell>
-                <TableCell>{member.name}</TableCell>
-                <TableCell>{member.department}</TableCell>
-                <TableCell>{member.position}</TableCell>
-                <TableCell>{member.employment_type}</TableCell>
-                <TableCell>{formatCurrency(member.salary)}</TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => {
-                        setEditingFaculty(member);
-                        setShowEditForm(true);
-                      }}
-                      className="text-primary hover:text-primary/80"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteFaculty(member.id)}
-                      className="text-destructive hover:text-destructive/80"
-                    >
-                      Delete
-                    </button>
-                  </div>
+            {faculty && faculty.length > 0 ? (
+              faculty.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>{member.employee_id}</TableCell>
+                  <TableCell>{member.user?.name || 'N/A'}</TableCell>
+                  <TableCell>{member.department?.name || 'N/A'}</TableCell>
+                  <TableCell>{member.position || 'N/A'}</TableCell>
+                  <TableCell>{member.employment_type || 'N/A'}</TableCell>
+                  <TableCell>{member.salary ? formatCurrency(member.salary) : 'N/A'}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setEditingFaculty(member);
+                          setShowEditForm(true);
+                        }}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteFaculty(member.id)}
+                        className="text-destructive hover:text-destructive/80"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  No faculty members found
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>
 
       {/* Pagination */}
       <div className="flex justify-center space-x-2">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        {totalPages > 0 && Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <button
             key={page}
             onClick={() => setCurrentPage(page)}
             className={`px-3 py-1 rounded ${
               currentPage === page
                 ? 'bg-primary text-white'
-                : 'bg-gray-100 dark:bg-gray-800'
+                : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200'
             }`}
           >
             {page}

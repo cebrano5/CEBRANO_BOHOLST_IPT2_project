@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Student & Faculty Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { background-color: #3b82f6; color: white; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background-color: white; margin: auto; padding: 0; border-radius: 0.5rem; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .dark .modal-content { background-color: #1f2937; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg">
+        <div class="flex items-center justify-between h-16 px-6 bg-blue-600">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="white" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                <span class="text-white font-bold text-lg">SFMS</span>
+            </div>
+        </div>
+        <nav class="mt-6 px-4">
+            <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg><span>Dashboard</span></a>
+            <a href="students.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg><span>Students</span></a>
+            <a href="faculty.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg><span>Faculty</span></a>
+            <a href="reports.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg><span>Reports</span></a>
+            <a href="settings.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg><span>Settings</span></a>
+            <a href="profile.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 mb-1"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Profile</span></a>
+        </nav>
+        <div class="absolute bottom-0 w-full p-4">
+            <button onclick="logout()" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 w-full"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg><span>Logout</span></button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <header class="bg-white dark:bg-gray-800 shadow-sm">
+            <div class="px-6 py-4">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage system configuration</p>
+            </div>
+        </header>
+
+        <main class="p-6">
+            <!-- Tabs -->
+            <div class="flex space-x-2 mb-6">
+                <button onclick="switchTab('departments')" id="departmentsTab" class="tab-active px-6 py-3 rounded-lg font-medium">Departments</button>
+                <button onclick="switchTab('courses')" id="coursesTab" class="px-6 py-3 rounded-lg font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">Courses</button>
+                <button onclick="switchTab('academicYears')" id="academicYearsTab" class="px-6 py-3 rounded-lg font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">Academic Years</button>
+                <button onclick="switchTab('archive')" id="archiveTab" class="px-6 py-3 rounded-lg font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">Archive</button>
+            </div>
+
+            <!-- Departments Content -->
+            <div id="departmentsContent">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Departments</h2>
+                        <button onclick="showDeptModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add Department</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="departmentsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Content -->
+            <div id="coursesContent" class="hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Courses</h2>
+                        <button onclick="showCourseModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add Course</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Credits</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesTableBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Years Content -->
+            <div id="academicYearsContent" class="hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Academic Years</h2>
+                        <button onclick="showYearModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add Academic Year</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Year</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Year</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="academicYearsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Archive Content -->
+            <div id="archiveContent" class="hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Archived Items</h2>
+                    
+                    <!-- Archived Departments -->
+                    <div class="mb-6">
+                        <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">Departments</h3>
+                        <div id="archivedDepartments" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Archived Courses -->
+                    <div class="mb-6">
+                        <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">Courses</h3>
+                        <div id="archivedCourses" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Archived Academic Years -->
+                    <div class="mb-6">
+                        <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">Academic Years</h3>
+                        <div id="archivedAcademicYears" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Archived Students -->
+                    <div class="mb-6">
+                        <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">Students</h3>
+                        <div id="archivedStudents" class="space-y-2"></div>
+                    </div>
+
+                    <!-- Archived Faculty -->
+                    <div>
+                        <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">Faculty</h3>
+                        <div id="archivedFaculty" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Department Modal -->
+    <div id="deptModal" class="modal">
+        <div class="modal-content">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white" id="deptModalTitle">Add Department</h2>
+            </div>
+            <form id="deptForm" class="px-6 py-4">
+                <input type="hidden" id="deptId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
+                        <input type="text" id="deptName" required class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Code *</label>
+                        <input type="text" id="deptCode" required class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                        <textarea id="deptDesc" rows="3" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                        <select id="deptStatus" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeDeptModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Course Modal -->
+    <div id="courseModal" class="modal">
+        <div class="modal-content">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white" id="courseModalTitle">Add Course</h2>
+            </div>
+            <form id="courseForm" class="px-6 py-4">
+                <input type="hidden" id="courseId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
+                        <input type="text" id="courseName" required class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Code *</label>
+                        <input type="text" id="courseCode" required class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department *</label>
+                        <select id="courseDept" required class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Credits</label>
+                        <input type="number" id="courseCredits" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                        <textarea id="courseDesc" rows="3" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                        <select id="courseStatus" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeCourseModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Academic Year Modal -->
+    <div id="yearModal" class="modal">
+        <div class="modal-content">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white" id="yearModalTitle">Add Academic Year</h2>
+            </div>
+            <form id="yearForm" class="px-6 py-4">
+                <input type="hidden" id="yearId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Year Name *</label>
+                        <input type="text" id="yearName" required placeholder="e.g., 2023-2024" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Start Year *</label>
+                        <input type="number" id="yearStart" required class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">End Year *</label>
+                        <input type="number" id="yearEnd" required class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="yearCurrent" class="rounded">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Set as Current Year</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                        <select id="yearStatus" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeYearModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let departments = [];
+        let courses = [];
+        let academicYears = [];
+        let archived = {};
+
+        async function loadData() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const [deptResp, courseResp, yearResp] = await Promise.all([
+                    fetch('/api/departments', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch('/api/courses', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch('/api/academic-years', { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+
+                departments = (await deptResp.json()).data || [];
+                courses = (await courseResp.json()).data || [];
+                academicYears = (await yearResp.json()).data || [];
+
+                renderDepartments();
+                renderCourses();
+                renderAcademicYears();
+                populateCourseDeptDropdown();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function switchTab(tab) {
+            ['departments', 'courses', 'academicYears', 'archive'].forEach(t => {
+                document.getElementById(t + 'Tab').classList.remove('tab-active', 'bg-blue-600', 'text-white');
+                document.getElementById(t + 'Tab').classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300');
+                document.getElementById(t + 'Content').classList.add('hidden');
+            });
+
+            document.getElementById(tab + 'Tab').classList.add('tab-active', 'bg-blue-600', 'text-white');
+            document.getElementById(tab + 'Tab').classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-700', 'dark:text-gray-300');
+            document.getElementById(tab + 'Content').classList.remove('hidden');
+
+            if (tab === 'archive') loadArchived();
+        }
+
+        function renderDepartments() {
+            const tbody = document.getElementById('departmentsTableBody');
+            tbody.innerHTML = '';
+            departments.forEach(d => {
+                tbody.innerHTML += `<tr class="dark:text-white">
+                    <td class="px-4 py-3">${d.name}</td>
+                    <td class="px-4 py-3">${d.code || 'N/A'}</td>
+                    <td class="px-4 py-3">${d.description || 'N/A'}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full ${d.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${d.status}</span></td>
+                    <td class="px-4 py-3 space-x-2"><button onclick="editDept(${d.id})" class="text-blue-600">Edit</button><button onclick="deleteDept(${d.id}, '${d.name}')" class="text-red-600">Archive</button></td>
+                </tr>`;
+            });
+        }
+
+        function renderCourses() {
+            const tbody = document.getElementById('coursesTableBody');
+            tbody.innerHTML = '';
+            courses.forEach(c => {
+                const dept = departments.find(d => d.id === c.department_id);
+                tbody.innerHTML += `<tr class="dark:text-white">
+                    <td class="px-4 py-3">${c.name}</td>
+                    <td class="px-4 py-3">${c.code || 'N/A'}</td>
+                    <td class="px-4 py-3">${dept?.name || 'N/A'}</td>
+                    <td class="px-4 py-3">${c.credits || 'N/A'}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full ${c.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${c.status}</span></td>
+                    <td class="px-4 py-3 space-x-2"><button onclick="editCourse(${c.id})" class="text-blue-600">Edit</button><button onclick="deleteCourse(${c.id}, '${c.name}')" class="text-red-600">Archive</button></td>
+                </tr>`;
+            });
+        }
+
+        function renderAcademicYears() {
+            const tbody = document.getElementById('academicYearsTableBody');
+            tbody.innerHTML = '';
+            academicYears.forEach(y => {
+                tbody.innerHTML += `<tr class="dark:text-white">
+                    <td class="px-4 py-3">${y.year || y.name}</td>
+                    <td class="px-4 py-3">${y.start_year || 'N/A'}</td>
+                    <td class="px-4 py-3">${y.end_year || 'N/A'}</td>
+                    <td class="px-4 py-3">${y.is_current ? 'Yes' : 'No'}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full ${y.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${y.status}</span></td>
+                    <td class="px-4 py-3 space-x-2"><button onclick="editYear(${y.id})" class="text-blue-600">Edit</button><button onclick="deleteYear(${y.id}, '${y.year || y.name}')" class="text-red-600">Archive</button></td>
+                </tr>`;
+            });
+        }
+
+        function populateCourseDeptDropdown() {
+            const select = document.getElementById('courseDept');
+            select.innerHTML = '<option value="">Select Department</option>';
+            departments.forEach(d => {
+                select.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+            });
+        }
+
+        function showDeptModal() {
+            document.getElementById('deptModalTitle').textContent = 'Add Department';
+            document.getElementById('deptId').value = '';
+            document.getElementById('deptForm').reset();
+            document.getElementById('deptModal').classList.add('active');
+        }
+
+        function closeDeptModal() {
+            document.getElementById('deptModal').classList.remove('active');
+        }
+
+        function showCourseModal() {
+            document.getElementById('courseModalTitle').textContent = 'Add Course';
+            document.getElementById('courseId').value = '';
+            document.getElementById('courseForm').reset();
+            populateCourseDeptDropdown();
+            document.getElementById('courseModal').classList.add('active');
+        }
+
+        function closeCourseModal() {
+            document.getElementById('courseModal').classList.remove('active');
+        }
+
+        function showYearModal() {
+            document.getElementById('yearModalTitle').textContent = 'Add Academic Year';
+            document.getElementById('yearId').value = '';
+            document.getElementById('yearForm').reset();
+            document.getElementById('yearModal').classList.add('active');
+        }
+
+        function closeYearModal() {
+            document.getElementById('yearModal').classList.remove('active');
+        }
+
+        document.getElementById('deptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const id = document.getElementById('deptId').value;
+            const data = {
+                name: document.getElementById('deptName').value,
+                code: document.getElementById('deptCode').value,
+                description: document.getElementById('deptDesc').value,
+                status: document.getElementById('deptStatus').value
+            };
+
+            try {
+                const url = id ? `/api/departments/${id}` : '/api/departments';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert(id ? 'Department updated!' : 'Department added!');
+                    closeDeptModal();
+                    loadData();
+                } else {
+                    alert('Failed to save department');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to save department');
+            }
+        });
+
+        document.getElementById('courseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const id = document.getElementById('courseId').value;
+            const data = {
+                name: document.getElementById('courseName').value,
+                code: document.getElementById('courseCode').value,
+                department_id: document.getElementById('courseDept').value,
+                credits: document.getElementById('courseCredits').value,
+                description: document.getElementById('courseDesc').value,
+                status: document.getElementById('courseStatus').value
+            };
+
+            try {
+                const url = id ? `/api/courses/${id}` : '/api/courses';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert(id ? 'Course updated!' : 'Course added!');
+                    closeCourseModal();
+                    loadData();
+                } else {
+                    alert('Failed to save course');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to save course');
+            }
+        });
+
+        document.getElementById('yearForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const id = document.getElementById('yearId').value;
+            const data = {
+                name: document.getElementById('yearName').value,
+                year: document.getElementById('yearName').value,
+                start_year: document.getElementById('yearStart').value,
+                end_year: document.getElementById('yearEnd').value,
+                is_current: document.getElementById('yearCurrent').checked,
+                status: document.getElementById('yearStatus').value
+            };
+
+            try {
+                const url = id ? `/api/academic-years/${id}` : '/api/academic-years';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert(id ? 'Academic year updated!' : 'Academic year added!');
+                    closeYearModal();
+                    loadData();
+                } else {
+                    alert('Failed to save academic year');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to save academic year');
+            }
+        });
+
+        function editDept(id) {
+            const d = departments.find(dept => dept.id === id);
+            document.getElementById('deptModalTitle').textContent = 'Edit Department';
+            document.getElementById('deptId').value = id;
+            document.getElementById('deptName').value = d.name;
+            document.getElementById('deptCode').value = d.code || '';
+            document.getElementById('deptDesc').value = d.description || '';
+            document.getElementById('deptStatus').value = d.status;
+            document.getElementById('deptModal').classList.add('active');
+        }
+
+        function editCourse(id) {
+            const c = courses.find(course => course.id === id);
+            document.getElementById('courseModalTitle').textContent = 'Edit Course';
+            document.getElementById('courseId').value = id;
+            document.getElementById('courseName').value = c.name;
+            document.getElementById('courseCode').value = c.code || '';
+            populateCourseDeptDropdown();
+            document.getElementById('courseDept').value = c.department_id;
+            document.getElementById('courseCredits').value = c.credits || '';
+            document.getElementById('courseDesc').value = c.description || '';
+            document.getElementById('courseStatus').value = c.status;
+            document.getElementById('courseModal').classList.add('active');
+        }
+
+        function editYear(id) {
+            const y = academicYears.find(year => year.id === id);
+            document.getElementById('yearModalTitle').textContent = 'Edit Academic Year';
+            document.getElementById('yearId').value = id;
+            document.getElementById('yearName').value = y.year || y.name;
+            document.getElementById('yearStart').value = y.start_year || '';
+            document.getElementById('yearEnd').value = y.end_year || '';
+            document.getElementById('yearCurrent').checked = y.is_current;
+            document.getElementById('yearStatus').value = y.status;
+            document.getElementById('yearModal').classList.add('active');
+        }
+
+        async function deleteDept(id, name) {
+            if (!confirm(`Archive department: ${name}?`)) return;
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`/api/departments/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    alert('Department archived!');
+                    loadData();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to archive department');
+            }
+        }
+
+        async function deleteCourse(id, name) {
+            if (!confirm(`Archive course: ${name}?`)) return;
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`/api/courses/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    alert('Course archived!');
+                    loadData();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to archive course');
+            }
+        }
+
+        async function deleteYear(id, name) {
+            if (!confirm(`Archive academic year: ${name}?`)) return;
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`/api/academic-years/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    alert('Academic year archived!');
+                    loadData();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to archive academic year');
+            }
+        }
+
+        async function loadArchived() {
+            const token = localStorage.getItem('token');
+            try {
+                // Load archived items - adjust endpoints as needed
+                const containers = ['archivedDepartments', 'archivedCourses', 'archivedAcademicYears', 'archivedStudents', 'archivedFaculty'];
+                containers.forEach(id => {
+                    document.getElementById(id).innerHTML = '<p class="text-sm text-gray-500">No archived items</p>';
+                });
+            } catch (error) {
+                console.error('Error loading archived items:', error);
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

@@ -28,8 +28,8 @@ class DashboardController extends Controller
                 ->get()
                 ->map(function ($item) {
                     return [
-                        'name' => $item->course->name,
-                        'value' => $item->count
+                        'course' => $item->course ? $item->course->name : 'Unspecified',
+                        'count' => $item->count
                     ];
                 }),
             'byDepartment' => Student::where('students.archived', false)
@@ -40,8 +40,8 @@ class DashboardController extends Controller
                 ->get()
                 ->map(function ($item) {
                     return [
-                        'name' => $item->name,
-                        'value' => $item->count
+                        'department' => $item->name,
+                        'count' => $item->count
                     ];
                 })
         ];
@@ -57,8 +57,8 @@ class DashboardController extends Controller
                 ->get()
                 ->map(function ($item) {
                     return [
-                        'name' => $item->name,
-                        'value' => $item->count
+                        'department' => $item->name,
+                        'count' => $item->count
                     ];
                 }),
             'byEmploymentType' => Faculty::where('archived', false)

@@ -10,9 +10,40 @@ use App\Models\Department;
 use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class ReportController extends Controller
 {
+    /**
+     * Get reports overview
+     */
+    public function index()
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'students' => [
+                    'total' => Student::count(),
+                    'by_department' => Student::selectRaw('department_id, COUNT(*) as count')
+                        ->groupBy('department_id')
+                        ->with('department:id,name')
+                        ->get(),
+                ],
+                'faculty' => [
+                    'total' => Faculty::count(),
+                    'by_department' => Faculty::selectRaw('department_id, COUNT(*) as count')
+                        ->groupBy('department_id')
+                        ->with('department:id,name')
+                        ->get(),
+                ],
+                'courses' => [
+                    'total' => Course::count(),
+                ],
+                'departments' => Department::count(),
+            ]
+        ]);
+    }
+
     /**
      * Get overall system statistics
      */
@@ -285,11 +316,16 @@ class ReportController extends Controller
     {
         $limit = $request->query('limit', 100);
         $departmentId = $request->query('department_id');
+        $employmentType = $request->query('employment_type');
 
         $query = Faculty::with('user', 'department');
 
         if ($departmentId) {
             $query->where('department_id', $departmentId);
+        }
+
+        if ($employmentType) {
+            $query->where('employment_type', $employmentType);
         }
 
         // Calculate statistics first
@@ -387,11 +423,16 @@ class ReportController extends Controller
     public function exportFacultyExcel(Request $request)
     {
         $departmentId = $request->query('department_id');
+        $employmentType = $request->query('employment_type');
         
         $query = Faculty::with('user', 'department');
 
         if ($departmentId) {
             $query->where('department_id', $departmentId);
+        }
+
+        if ($employmentType) {
+            $query->where('employment_type', $employmentType);
         }
 
         $faculty_list = $query->get();
@@ -451,33 +492,70 @@ class ReportController extends Controller
      */
     public function exportStudentsPDF(Request $request)
     {
-        $departmentId = $request->query('department_id');
-        $courseId = $request->query('course_id');
-        $academicYearId = $request->query('academic_year');
-        $category = $request->query('category');
-        
-        $query = Student::with('user', 'course', 'department', 'academicYear');
+        try {
+            // Increase memory limit and execution time for PDF generation
+            ini_set('memory_limit', '256M');
+            ini_set('max_execution_time', '300');
+            
+            $departmentId = $request->query('department_id');
+            $courseId = $request->query('course_id');
+            $academicYearId = $request->query('academic_year');
+            $category = $request->query('category');
+            
+            $query = Student::with(['user', 'course', 'department', 'academicYear']);
 
-        if ($departmentId) {
-            $query->where('department_id', $departmentId);
+            if ($departmentId) {
+                $query->where('department_id', $departmentId);
+            }
+
+            if ($courseId) {
+                $query->where('course_id', $courseId);
+            }
+
+            if ($academicYearId) {
+                $query->where('academic_year_id', $academicYearId);
+            }
+
+            if ($category) {
+                $query->where('category', $category);
+            }
+
+            $students = $query->get();
+            
+            // Prepare data for view
+            $data = [
+                'students' => $students,
+                'total' => $students->count(),
+                'generated_at' => now()->format('Y-m-d H:i:s')
+            ];
+            
+            // Try to use PDF, fallback to HTML view for testing
+            try {
+                $pdf = PDF::loadView('pdf.students', $data);
+                $pdf->setPaper('a4', 'landscape');
+                $pdf->setOption('enable-local-file-access', true);
+                
+                $filename = 'students_report_' . date('Y-m-d_His') . '.pdf';
+                return $pdf->stream($filename);
+            } catch (\Exception $pdfError) {
+                \Log::error('PDF generation failed: ' . $pdfError->getMessage());
+                \Log::error('PDF Error Stack: ' . $pdfError->getTraceAsString());
+                // Return as downloadable HTML if PDF fails
+                return response()->view('pdf.students', $data, 200, [
+                    'Content-Type' => 'text/html',
+                    'Content-Disposition' => 'attachment; filename="students_report_' . date('Y-m-d_His') . '.html"'
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Student PDF Export Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate PDF report',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        if ($courseId) {
-            $query->where('course_id', $courseId);
-        }
-
-        if ($academicYearId) {
-            $query->where('academic_year_id', $academicYearId);
-        }
-
-        if ($category) {
-            $query->where('category', $category);
-        }
-
-        $students = $query->get();
-        
-        $pdf = \PDF::loadView('pdf.students', ['students' => $students]);
-        return $pdf->download('students.pdf');
     }
 
     /**
@@ -485,18 +563,60 @@ class ReportController extends Controller
      */
     public function exportFacultyPDF(Request $request)
     {
-        $departmentId = $request->query('department_id');
-        
-        $query = Faculty::with('user', 'department');
+        try {
+            // Increase memory limit and execution time for PDF generation
+            ini_set('memory_limit', '256M');
+            ini_set('max_execution_time', '300');
+            
+            $departmentId = $request->query('department_id');
+            $employmentType = $request->query('employment_type');
+            
+            $query = Faculty::with(['user', 'department']);
 
-        if ($departmentId) {
-            $query->where('department_id', $departmentId);
+            if ($departmentId) {
+                $query->where('department_id', $departmentId);
+            }
+
+            if ($employmentType) {
+                $query->where('employment_type', $employmentType);
+            }
+
+            $faculty = $query->get();
+            
+            // Prepare data for view
+            $data = [
+                'faculty' => $faculty,
+                'total' => $faculty->count(),
+                'generated_at' => now()->format('Y-m-d H:i:s')
+            ];
+            
+            // Try to use PDF, fallback to HTML view for testing
+            try {
+                $pdf = PDF::loadView('pdf.faculty', $data);
+                $pdf->setPaper('a4', 'landscape');
+                $pdf->setOption('enable-local-file-access', true);
+                
+                $filename = 'faculty_report_' . date('Y-m-d_His') . '.pdf';
+                return $pdf->stream($filename);
+            } catch (\Exception $pdfError) {
+                \Log::error('PDF generation failed: ' . $pdfError->getMessage());
+                \Log::error('PDF Error Stack: ' . $pdfError->getTraceAsString());
+                // Return as downloadable HTML if PDF fails
+                return response()->view('pdf.faculty', $data, 200, [
+                    'Content-Type' => 'text/html',
+                    'Content-Disposition' => 'attachment; filename="faculty_report_' . date('Y-m-d_His') . '.html"'
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Faculty PDF Export Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate PDF report',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $faculty = $query->get();
-        
-        $pdf = \PDF::loadView('pdf.faculty', ['faculty' => $faculty]);
-        return $pdf->download('faculty.pdf');
     }
 
     /**
@@ -504,9 +624,38 @@ class ReportController extends Controller
      */
     public function exportEnrollmentPDF()
     {
-        $enrollments = Student::with('course', 'department', 'user', 'academicYear')->get();
-        
-        $pdf = \PDF::loadView('pdf.enrollment', ['enrollments' => $enrollments]);
-        return $pdf->download('enrollment.pdf');
+        try {
+            $enrollments = Student::with(['course', 'department', 'user', 'academicYear'])->get();
+            
+            // Prepare data for view
+            $data = [
+                'enrollments' => $enrollments,
+                'total' => $enrollments->count(),
+                'generated_at' => now()->format('Y-m-d H:i:s')
+            ];
+            
+            // Try to use PDF, fallback to HTML view for testing
+            try {
+                $pdf = PDF::loadView('pdf.enrollment', $data);
+                $pdf->setPaper('a4', 'landscape');
+                return $pdf->download('enrollment_report_' . date('Y-m-d_His') . '.pdf');
+            } catch (\Exception $pdfError) {
+                \Log::error('PDF generation failed: ' . $pdfError->getMessage());
+                // Return as downloadable HTML if PDF fails
+                return response()->view('pdf.enrollment', $data, 200, [
+                    'Content-Type' => 'text/html',
+                    'Content-Disposition' => 'attachment; filename="enrollment_report_' . date('Y-m-d_His') . '.html"'
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Enrollment PDF Export Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate PDF report',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

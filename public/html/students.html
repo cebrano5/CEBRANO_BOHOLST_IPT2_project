@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students - Student & Faculty Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            padding: 0;
+            border-radius: 0.5rem;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .dark .modal-content {
+            background-color: #1f2937;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Sidebar (same as dashboard) -->
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg">
+        <div class="flex items-center justify-between h-16 px-6 bg-blue-600">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+                <span class="text-white font-bold text-lg">SFMS</span>
+            </div>
+        </div>
+        <nav class="mt-6 px-4">
+            <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="students.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Students</span>
+            </a>
+            <a href="faculty.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                <span>Faculty</span>
+            </a>
+            <a href="reports.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <span>Reports</span>
+            </a>
+            <a href="settings.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 6v6"></path></svg>
+                <span>Settings</span>
+            </a>
+            <a href="profile.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Profile</span>
+            </a>
+        </nav>
+        <div class="absolute bottom-0 w-full p-4">
+            <button onclick="logout()" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <header class="bg-white dark:bg-gray-800 shadow-sm">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Students</h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage student records and information</p>
+                </div>
+                <button onclick="showAddModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>Add Student</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="p-6">
+            <!-- Filters -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" id="searchInput" placeholder="Search students..." class="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    <select id="filterDepartment" class="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                        <option value="">All Departments</option>
+                    </select>
+                    <select id="filterCourse" class="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                        <option value="">All Courses</option>
+                    </select>
+                    <select id="filterCategory" class="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                        <option value="">All Categories</option>
+                        <option value="freshman">Freshman</option>
+                        <option value="transferee">Transferee</option>
+                        <option value="returnee">Returnee</option>
+                        <option value="regular">Regular</option>
+                        <option value="irregular">Irregular</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Students Table -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Student ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Course</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Table rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-600">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button onclick="previousPage()" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</button>
+                        <button onclick="nextPage()" class="ml-3 px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">
+                                Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalRecords">0</span> results
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" id="paginationNav">
+                                <!-- Pagination buttons will be inserted here -->
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Add New Student</h2>
+            </div>
+            <form id="addStudentForm" class="px-6 py-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
+                        <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email *</label>
+                        <input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password *</label>
+                        <input type="password" name="password" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <!-- Student ID -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Student ID *</label>
+                        <input type="text" name="student_id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <!-- Department -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department *</label>
+                        <select name="department_id" id="addDepartment" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="">Select Department</option>
+                        </select>
+                    </div>
+                    <!-- Course -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Course *</label>
+                        <select name="course_id" id="addCourse" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="">Select Course</option>
+                        </select>
+                    </div>
+                    <!-- Academic Year -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Academic Year *</label>
+                        <select name="academic_year" id="addAcademicYear" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="">Select Academic Year</option>
+                        </select>
+                    </div>
+                    <!-- Category -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category *</label>
+                        <select name="category" id="addCategory" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="freshman">Freshman</option>
+                            <option value="transferee">Transferee</option>
+                            <option value="returnee">Returnee</option>
+                            <option value="regular">Regular</option>
+                            <option value="irregular">Irregular</option>
+                        </select>
+                    </div>
+                    <!-- Enrollment Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Enrollment Date</label>
+                        <input type="date" name="enrollment_date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone</label>
+                        <input type="text" name="phone" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <!-- Address -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
+                        <textarea name="address" rows="2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white"></textarea>
+                    </div>
+                    <!-- Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                        <select name="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="graduated">Graduated</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Document Uploads Section -->
+                <div id="documentUploadsSection" class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Required Documents</h3>
+                    <div id="documentFields"></div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal (similar structure) -->
+    <div id="editModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Edit Student</h2>
+            </div>
+            <form id="editStudentForm" class="px-6 py-4">
+                <input type="hidden" name="student_id" id="editStudentId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
+                        <input type="text" name="name" id="editName" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email *</label>
+                        <input type="email" name="email" id="editEmail" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password (leave blank to keep current)</label>
+                        <input type="password" name="password" id="editPassword" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Student ID *</label>
+                        <input type="text" name="student_id" id="editStudentIdField" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department *</label>
+                        <select name="department_id" id="editDepartment" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Course *</label>
+                        <select name="course_id" id="editCourse" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Academic Year *</label>
+                        <select name="academic_year" id="editAcademicYear" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category *</label>
+                        <select name="category" id="editCategory" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="freshman">Freshman</option>
+                            <option value="transferee">Transferee</option>
+                            <option value="returnee">Returnee</option>
+                            <option value="regular">Regular</option>
+                            <option value="irregular">Irregular</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Enrollment Date</label>
+                        <input type="date" name="enrollment_date" id="editEnrollmentDate" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone</label>
+                        <input type="text" name="phone" id="editPhone" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
+                        <textarea name="address" id="editAddress" rows="2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                        <select name="status" id="editStatus" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="graduated">Graduated</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Document Uploads for Edit -->
+                <div id="editDocumentUploadsSection" class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Update Documents</h3>
+                    <div id="editDocumentFields"></div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Update Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Static Mock Data
+        const MOCK_DEPARTMENTS = [
+            { id: 1, name: 'Computer Science', code: 'CS' },
+            { id: 2, name: 'Information Technology', code: 'IT' },
+            { id: 3, name: 'Engineering', code: 'ENG' },
+            { id: 4, name: 'Business Administration', code: 'BA' },
+            { id: 5, name: 'Education', code: 'ED' }
+        ];
+
+        const MOCK_COURSES = [
+            { id: 1, name: 'Bachelor of Science in Computer Science', code: 'BSCS', department_id: 1 },
+            { id: 2, name: 'Bachelor of Science in Information Technology', code: 'BSIT', department_id: 2 },
+            { id: 3, name: 'Bachelor of Science in Software Engineering', code: 'BSSE', department_id: 1 },
+            { id: 4, name: 'Bachelor of Science in Civil Engineering', code: 'BSCE', department_id: 3 },
+            { id: 5, name: 'Bachelor of Science in Business Administration', code: 'BSBA', department_id: 4 },
+            { id: 6, name: 'Bachelor of Elementary Education', code: 'BEED', department_id: 5 }
+        ];
+
+        const MOCK_ACADEMIC_YEARS = [
+            { id: 1, year: '2023-2024' },
+            { id: 2, year: '2024-2025' },
+            { id: 3, year: '2025-2026' }
+        ];
+
+        let MOCK_STUDENTS = [
+            { id: 1, name: 'John Doe', email: 'john.doe@example.com', student_id: 'STU001', department_id: 1, department_name: 'Computer Science', course_id: 1, course_name: 'BSCS', academic_year_id: 2, category: 'regular', enrollment_date: '2024-08-15', phone: '123-456-7890', address: '123 Main St', status: 'active' },
+            { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com', student_id: 'STU002', department_id: 2, department_name: 'Information Technology', course_id: 2, course_name: 'BSIT', academic_year_id: 2, category: 'regular', enrollment_date: '2024-08-15', phone: '123-456-7891', address: '456 Oak Ave', status: 'active' },
+            { id: 3, name: 'Bob Johnson', email: 'bob.johnson@example.com', student_id: 'STU003', department_id: 1, department_name: 'Computer Science', course_id: 3, course_name: 'BSSE', academic_year_id: 2, category: 'freshman', enrollment_date: '2024-08-20', phone: '123-456-7892', address: '789 Pine Rd', status: 'active' },
+            { id: 4, name: 'Alice Williams', email: 'alice.williams@example.com', student_id: 'STU004', department_id: 3, department_name: 'Engineering', course_id: 4, course_name: 'BSCE', academic_year_id: 2, category: 'transferee', enrollment_date: '2024-08-18', phone: '123-456-7893', address: '321 Elm St', status: 'active' },
+            { id: 5, name: 'Charlie Brown', email: 'charlie.brown@example.com', student_id: 'STU005', department_id: 4, department_name: 'Business Administration', course_id: 5, course_name: 'BSBA', academic_year_id: 2, category: 'regular', enrollment_date: '2024-08-15', phone: '123-456-7894', address: '654 Maple Dr', status: 'active' },
+            { id: 6, name: 'Diana Prince', email: 'diana.prince@example.com', student_id: 'STU006', department_id: 5, department_name: 'Education', course_id: 6, course_name: 'BEED', academic_year_id: 2, category: 'irregular', enrollment_date: '2024-08-16', phone: '123-456-7895', address: '987 Birch Ln', status: 'active' },
+            { id: 7, name: 'Eva Green', email: 'eva.green@example.com', student_id: 'STU007', department_id: 1, department_name: 'Computer Science', course_id: 1, course_name: 'BSCS', academic_year_id: 2, category: 'returnee', enrollment_date: '2024-08-22', phone: '123-456-7896', address: '147 Cedar St', status: 'active' },
+            { id: 8, name: 'Frank Miller', email: 'frank.miller@example.com', student_id: 'STU008', department_id: 2, department_name: 'Information Technology', course_id: 2, course_name: 'BSIT', academic_year_id: 2, category: 'regular', enrollment_date: '2024-08-15', phone: '123-456-7897', address: '258 Spruce Ave', status: 'inactive' }
+        ];
+
+        let currentPage = 1;
+        let totalPages = 1;
+        let filteredStudents = [...MOCK_STUDENTS];
+
+        // Document fields by category
+        const documentFields = {
+            freshman: [
+                { name: 'birth_certificate_image_url', label: 'Birth Certificate' },
+                { name: 'academic_performance_image_url', label: 'Academic Performance' },
+                { name: 'completion_diploma_image_url', label: 'Completion/Diploma' },
+                { name: 'character_certificate_image_url', label: 'Character Certificate' },
+                { name: 'admission_test_image_url', label: 'Admission Test Result' }
+            ],
+            transferee: [
+                { name: 'birth_certificate_image_url', label: 'Birth Certificate' },
+                { name: 'application_form_image_url', label: 'Application Form' },
+                { name: 'college_academic_record_tor_image_url', label: 'College Academic Record (TOR)' },
+                { name: 'eligibility_to_transfer_image_url', label: 'Eligibility to Transfer' },
+                { name: 'course_evaluation_image_url', label: 'Course Evaluation' },
+                { name: 'good_standing_status_image_url', label: 'Good Standing Status' }
+            ],
+            returnee: [
+                { name: 'birth_certificate_image_url', label: 'Birth Certificate' },
+                { name: 'prior_education_proof_image_url', label: 'Prior Education Proof' },
+                { name: 'marital_status_image_url', label: 'Marital Status' },
+                { name: 'request_to_reenroll_image_url', label: 'Request to Re-enroll' },
+                { name: 'account_clearance_image_url', label: 'Account Clearance' },
+                { name: 'academic_review_image_url', label: 'Academic Review' },
+                { name: 'health_status_image_url', label: 'Health Status' }
+            ],
+            regular: [],
+            irregular: []
+        };
+
+        function loadData() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.name) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            populateDepartmentDropdowns();
+            populateCourseDropdowns();
+            populateAcademicYearDropdowns();
+            loadStudents();
+        }
+
+        function loadStudents(search = '', department = '', course = '', category = '', page = 1) {
+            // Filter students
+            filteredStudents = MOCK_STUDENTS.filter(s => {
+                let matches = true;
+                if (search) {
+                    matches = matches && (
+                        s.name.toLowerCase().includes(search.toLowerCase()) ||
+                        s.email.toLowerCase().includes(search.toLowerCase()) ||
+                        s.student_id.toLowerCase().includes(search.toLowerCase())
+                    );
+                }
+                if (department) matches = matches && s.department_id == department;
+                if (course) matches = matches && s.course_id == course;
+                if (category) matches = matches && s.category === category;
+                return matches;
+            });
+
+            // Pagination
+            const limit = 10;
+            totalPages = Math.ceil(filteredStudents.length / limit);
+            currentPage = page;
+            const start = (page - 1) * limit;
+            const paginatedStudents = filteredStudents.slice(start, start + limit);
+
+            renderStudentsTable(paginatedStudents);
+            renderPagination();
+        }
+
+        function populateDepartmentDropdowns() {
+            const selects = ['filterDepartment', 'addDepartment', 'editDepartment'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = id.includes('filter') 
+                        ? '<option value="">All Departments</option>' 
+                        : '<option value="">Select Department</option>';
+                    MOCK_DEPARTMENTS.forEach(dept => {
+                        select.innerHTML += `<option value="${dept.id}">${dept.name}</option>`;
+                    });
+                }
+            });
+        }
+
+        function populateCourseDropdowns() {
+            const selects = ['filterCourse', 'addCourse', 'editCourse'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = id.includes('filter')
+                        ? '<option value="">All Courses</option>'
+                        : '<option value="">Select Course</option>';
+                    MOCK_COURSES.forEach(course => {
+                        select.innerHTML += `<option value="${course.id}" data-dept="${course.department_id}">${course.name}</option>`;
+                    });
+                }
+            });
+        }
+
+        function populateAcademicYearDropdowns() {
+            const selects = ['addAcademicYear', 'editAcademicYear'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = '<option value="">Select Academic Year</option>';
+                    MOCK_ACADEMIC_YEARS.forEach(year => {
+                        select.innerHTML += `<option value="${year.id}">${year.year}</option>`;
+                    });
+                }
+            });
+        }
+
+        function renderStudentsTable(students = []) {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = '';
+
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No students found</td></tr>';
+                return;
+            }
+
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${student.student_id || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${student.name || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${student.email || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${student.course_name || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white capitalize">${student.category || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(student.status)}">
+                            ${student.status || 'active'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button onclick="editStudent(${student.id})" class="text-blue-600 hover:text-blue-900">Edit</button>
+                        <button onclick="deleteStudent(${student.id}, '${student.name}')" class="text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Update showing counts
+            const from = students.length > 0 ? ((currentPage - 1) * 10) + 1 : 0;
+            const to = from + students.length - 1;
+            const total = filteredStudents.length;
+            document.getElementById('showingFrom').textContent = from;
+            document.getElementById('showingTo').textContent = to;
+            if (document.getElementById('showingTotal')) {
+                document.getElementById('showingTotal').textContent = total;
+            }
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'active': return 'bg-green-100 text-green-800';
+                case 'inactive': return 'bg-gray-100 text-gray-800';
+                case 'graduated': return 'bg-blue-100 text-blue-800';
+                case 'suspended': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function renderPagination() {
+            const nav = document.getElementById('paginationNav');
+            nav.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.className = `relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                    i === currentPage
+                        ? 'z-10 bg-blue-600 border-blue-600 text-white'
+                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`;
+                btn.onclick = () => loadStudents('', '', '', '', i);
+                nav.appendChild(btn);
+            }
+        }
+
+        function showAddModal() {
+            document.getElementById('addModal').classList.add('active');
+            updateDocumentFields('add', 'freshman');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+            document.getElementById('addStudentForm').reset();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            document.getElementById('editStudentForm').reset();
+        }
+
+        function updateDocumentFields(mode, category) {
+            const container = mode === 'add' 
+                ? document.getElementById('documentFields')
+                : document.getElementById('editDocumentFields');
+            
+            container.innerHTML = '';
+            const fields = documentFields[category] || [];
+
+            fields.forEach(field => {
+                const div = document.createElement('div');
+                div.className = 'mb-4';
+                div.innerHTML = `
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">${field.label}</label>
+                    <input type="file" name="${field.name}" accept="image/*" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-700 dark:text-white">
+                    <p class="text-xs text-gray-500 mt-1">Max 2MB, Images only</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Category change handlers
+        document.getElementById('addCategory').addEventListener('change', (e) => {
+            updateDocumentFields('add', e.target.value);
+        });
+
+        document.getElementById('editCategory').addEventListener('change', (e) => {
+            updateDocumentFields('edit', e.target.value);
+        });
+
+        // Department change handlers (filter courses)
+        document.getElementById('addDepartment').addEventListener('change', (e) => {
+            filterCoursesByDepartment('addCourse', e.target.value);
+        });
+
+        document.getElementById('editDepartment').addEventListener('change', (e) => {
+            filterCoursesByDepartment('editCourse', e.target.value);
+        });
+
+        function filterCoursesByDepartment(selectId, deptId) {
+            const select = document.getElementById(selectId);
+            const options = select.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value === '') {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = option.dataset.dept === deptId ? 'block' : 'none';
+                }
+            });
+            select.value = '';
+        }
+
+        // Add student form submission
+        document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/api/students', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('Student added successfully!');
+                    closeAddModal();
+                    loadStudents();
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.message || 'Failed to add student'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to add student');
+            }
+        });
+
+        // Edit student form submission
+        document.getElementById('editStudentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const studentId = document.getElementById('editStudentId').value;
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch(`/api/students/${studentId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('Student updated successfully!');
+                    closeEditModal();
+                    loadStudents();
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.message || 'Failed to update student'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to update student');
+            }
+        });
+
+        function editStudent(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+
+            document.getElementById('editStudentId').value = id;
+            document.getElementById('editName').value = student.user?.name || student.name || '';
+            document.getElementById('editEmail').value = student.user?.email || student.email || '';
+            document.getElementById('editStudentIdField').value = student.student_id || '';
+            document.getElementById('editDepartment').value = student.course?.department_id || '';
+            filterCoursesByDepartment('editCourse', student.course?.department_id || '');
+            document.getElementById('editCourse').value = student.course_id || '';
+            document.getElementById('editAcademicYear').value = student.academic_year_id || '';
+            document.getElementById('editCategory').value = student.category || 'freshman';
+            document.getElementById('editEnrollmentDate').value = student.enrollment_date || '';
+            document.getElementById('editPhone').value = student.phone || '';
+            document.getElementById('editAddress').value = student.address || '';
+            document.getElementById('editStatus').value = student.status || 'active';
+
+            updateDocumentFields('edit', student.category || 'freshman');
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        async function deleteStudent(id, name) {
+            if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`/api/students/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    alert('Student deleted successfully!');
+                    loadStudents();
+                } else {
+                    alert('Failed to delete student');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to delete student');
+            }
+        }
+
+        // Filter handlers
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            loadStudents(e.target.value, 
+                document.getElementById('filterDepartment').value,
+                document.getElementById('filterCourse').value,
+                document.getElementById('filterCategory').value);
+        });
+
+        document.getElementById('filterDepartment').addEventListener('change', (e) => {
+            loadStudents(document.getElementById('searchInput').value,
+                e.target.value,
+                document.getElementById('filterCourse').value,
+                document.getElementById('filterCategory').value);
+        });
+
+        document.getElementById('filterCourse').addEventListener('change', (e) => {
+            loadStudents(document.getElementById('searchInput').value,
+                document.getElementById('filterDepartment').value,
+                e.target.value,
+                document.getElementById('filterCategory').value);
+        });
+
+        document.getElementById('filterCategory').addEventListener('change', (e) => {
+            loadStudents(document.getElementById('searchInput').value,
+                document.getElementById('filterDepartment').value,
+                document.getElementById('filterCourse').value,
+                e.target.value);
+        });
+
+        function previousPage() {
+            if (currentPage > 1) loadStudents('', '', '', '', currentPage - 1);
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) loadStudents('', '', '', '', currentPage + 1);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

@@ -19,6 +19,7 @@ class Student extends Model
         'date_enrolled',
         'phone',
         'address',
+        'image',
         'archived',
         'status',
         'category',

@@ -10,13 +10,16 @@ const FacultyForm = ({ faculty, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     employee_id: '',
     department_id: '',
     position: '',
     employment_type: '',
     salary: '',
-    contact_number: '',
+    phone: '',
     address: '',
+    qualifications: '',
+    specializations: '',
     ...faculty
   });
 
@@ -52,9 +55,37 @@ const FacultyForm = ({ faculty, onSubmit, onCancel }) => {
     setError('');
     
     try {
-      await onSubmit(formData);
+      // Clean up the data before submitting
+      const submitData = {
+        name: formData.name,
+        email: formData.email,
+        employee_id: formData.employee_id,
+        department_id: formData.department_id ? parseInt(formData.department_id) : null,
+        position: formData.position || null,
+        employment_type: formData.employment_type || null,
+        salary: formData.salary ? parseFloat(formData.salary) : null,
+        phone: formData.phone || null,
+        address: formData.address || null,
+        qualifications: formData.qualifications || null,
+        specializations: formData.specializations || null,
+      };
+
+      // Only include password for new faculty (not editing)
+      if (!faculty && formData.password) {
+        submitData.password = formData.password;
+      }
+
+      // Remove null/undefined values for cleaner submission
+      Object.keys(submitData).forEach(key => {
+        if (submitData[key] === '' || submitData[key] === undefined) {
+          submitData[key] = null;
+        }
+      });
+
+      await onSubmit(submitData);
     } catch (error) {
-      setError(error.message || 'An error occurred');
+      console.error('Form submission error:', error);
+      setError(error.response?.data?.message || error.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -103,6 +134,21 @@ const FacultyForm = ({ faculty, onSubmit, onCancel }) => {
           />
         </div>
 
+        {!faculty && (
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              placeholder="Minimum 6 characters"
+            />
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="department_id">Department</Label>
           <select
@@ -111,7 +157,6 @@ const FacultyForm = ({ faculty, onSubmit, onCancel }) => {
             value={formData.department_id}
             onChange={handleChange}
             className="form-select block w-full"
-            required
           >
             <option value="">Select Department</option>
             {departments.map(dept => (
@@ -129,7 +174,7 @@ const FacultyForm = ({ faculty, onSubmit, onCancel }) => {
             name="position"
             value={formData.position}
             onChange={handleChange}
-            required
+            placeholder="e.g., Professor, Assistant Professor"
           />
         </div>
 
@@ -141,13 +186,11 @@ const FacultyForm = ({ faculty, onSubmit, onCancel }) => {
             value={formData.employment_type}
             onChange={handleChange}
             className="form-select block w-full"
-            required
           >
             <option value="">Select Type</option>
-            <option value="full-time">Full Time</option>
-            <option value="part-time">Part Time</option>
+            <option value="full_time">Full Time</option>
+            <option value="part_time">Part Time</option>
             <option value="contract">Contract</option>
-            <option value="visiting">Visiting</option>
           </select>
         </div>
 
@@ -159,18 +202,18 @@ const FacultyForm = ({ faculty, onSubmit, onCancel }) => {
             type="number"
             value={formData.salary}
             onChange={handleChange}
-            required
+            placeholder="e.g., 50000"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="contact_number">Contact Number</Label>
+          <Label htmlFor="phone">Contact Number</Label>
           <Input
-            id="contact_number"
-            name="contact_number"
-            value={formData.contact_number}
+            id="phone"
+            name="phone"
+            value={formData.phone}
             onChange={handleChange}
-            required
+            placeholder="e.g., 555-1234"
           />
         </div>
 
@@ -181,6 +224,29 @@ const FacultyForm = ({ faculty, onSubmit, onCancel }) => {
             name="address"
             value={formData.address}
             onChange={handleChange}
+            placeholder="Full address"
+          />
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="qualifications">Qualifications</Label>
+          <Input
+            id="qualifications"
+            name="qualifications"
+            value={formData.qualifications}
+            onChange={handleChange}
+            placeholder="e.g., PhD in Computer Science, Master's Degree"
+          />
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="specializations">Specializations</Label>
+          <Input
+            id="specializations"
+            name="specializations"
+            value={formData.specializations}
+            onChange={handleChange}
+            placeholder="e.g., Machine Learning, Database Systems"
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const COLORS = [
   'hsl(var(--primary))',
@@ -13,39 +13,56 @@ const COLORS = [
 ];
 
 export const CourseChart = ({ data, title = "Course Distribution" }) => {
+  console.log('CourseChart received data:', data);
+  
   if (!data || data.length === 0) {
     return (
-      <div className="w-full h-80 min-h-[320px] flex items-center justify-center border rounded-lg bg-card">
-        <p className="text-muted-foreground">No data available</p>
+      <div className="w-full h-80 flex items-center justify-center text-gray-400">
+        <div className="text-center">
+          <p>No course data available</p>
+        </div>
       </div>
     );
   }
 
-  const chartData = data.map(item => ({
+  const chartData = data.map((item, index) => ({
     name: item.course || 'Unspecified',
-    value: item.count
+    value: item.count,
+    fill: COLORS[index % COLORS.length]
   }));
 
+  console.log('CourseChart chartData:', chartData);
+
   return (
-    <div className="w-full h-80 min-h-[320px]">
-      <h3 className="text-lg font-medium mb-4">{title}</h3>
+    <div className="w-full" style={{ height: '320px' }}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={chartData}
             cx="50%"
-            cy="50%"
+            cy="45%"
             labelLine={false}
-            outerRadius={120}
+            outerRadius={70}
             fill="#8884d8"
             dataKey="value"
-            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
           >
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell key={`cell-${index}`} fill={entry.fill} />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#1e293b',
+              border: '1px solid #374151',
+              borderRadius: '6px',
+              color: '#ffffff'
+            }}
+            formatter={(value, name) => [`${value} students`, name]}
+          />
+          <Legend
+            wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+            iconType="circle"
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

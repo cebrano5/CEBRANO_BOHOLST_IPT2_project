@@ -105,10 +105,10 @@ Route::get('/config', function () {
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
-// Public routes (no auth required)
+// Public routes (no auth required) - GET only
 Route::get('/academic-years', [SettingsController::class, 'getAcademicYears']);
 Route::get('/departments', [SettingsController::class, 'getDepartments']);
-Route::get('/courses', [SettingsController::class, 'getCourses']);
+Route::get('/courses', [CourseController::class, 'index']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
