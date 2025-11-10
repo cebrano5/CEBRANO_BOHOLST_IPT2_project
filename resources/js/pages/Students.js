@@ -102,7 +102,13 @@ const Students = () => {
 
   const fetchAcademicYears = async () => {
     try {
-      const response = await axios.get('/api/academic-years');
+      const response = await axios.get('/api/academic-years', {
+        withCredentials: true,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
       console.log('Academic years response:', response.data);
       
       // Handle different response formats
@@ -916,11 +922,11 @@ const Students = () => {
                     name="academic_year"
                     value={formData.academic_year}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Academic Year</option>
                     {academicYears.map(year => (
-                      <option key={year.id} value={year.id}>{year.year}</option>
+                      <option key={year.id} value={year.id} className="bg-gray-800 text-white">{year.name || year.year}</option>
                     ))}
                   </select>
                 </div>
@@ -1267,7 +1273,7 @@ const Students = () => {
                   >
                     <option value="">Select Academic Year</option>
                     {academicYears.map(year => (
-                      <option key={year.id} value={year.id}>{year.year}</option>
+                      <option key={year.id} value={year.id}>{year.name || year.year}</option>
                     ))}
                   </select>
                 </div>

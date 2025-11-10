@@ -1090,6 +1090,10 @@ video {
 .border-transparent {
   border-color: transparent;
 }
+.border-gray-700 {
+  --tw-border-opacity: 1;
+  border-color: rgb(55 65 81 / var(--tw-border-opacity, 1));
+}
 .border-t-primary {
   border-top-color: hsl(var(--primary));
 }
@@ -1218,6 +1222,10 @@ video {
 .bg-yellow-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(254 249 195 / var(--tw-bg-opacity, 1));
+}
+.bg-gray-800 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
 }
 .object-cover {
   -o-object-fit: cover;
