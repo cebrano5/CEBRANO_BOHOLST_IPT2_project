@@ -1,0 +1,15 @@
+import React from 'react';
+import cn from 'classnames';
+
+export const Label = React.forwardRef(({ className, ...props }, ref) => {
+  return (
+    <label
+      className={cn(
+        "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        className
+      )}
+      ref={ref}
+      {...props}
+    />
+  );
+});

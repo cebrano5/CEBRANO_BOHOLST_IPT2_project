@@ -120,6 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/stats', [DashboardController::class, 'stats']);
     Route::get('/students/stats', [StudentController::class, 'statistics']);
     Route::apiResource('students', StudentController::class);
     Route::patch('/students/{id}/restore', [StudentController::class, 'restore']);

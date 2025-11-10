@@ -62,3 +62,55 @@
 body, html {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* Date input styling for dark mode */
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"],
+.dark input[type="month"],
+.dark input[type="week"] {
+  color-scheme: dark;
+}
+
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"] {
+  color-scheme: light;
+}
+
+/* Calendar picker styling in dark mode */
+@supports (color-scheme: dark) {
+  .dark input[type="date"]::webkit-calendar-picker-indicator,
+  .dark input[type="time"]::webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.2);
+  }
+}
+
+/* Select dropdown styling for dark mode */
+.dark select,
+.dark input[type="select"] {
+  color-scheme: dark;
+  background-color: hsl(222.2 84% 4.9%);
+  color: hsl(210 40% 98%);
+  border-color: hsl(217.2 32.6% 17.5%);
+}
+
+select,
+input[type="select"] {
+  color-scheme: light;
+}
+
+/* Ensure select options are visible in dark mode */
+.dark select option {
+  background-color: hsl(222.2 84% 4.9%);
+  color: hsl(210 40% 98%);
+}
+
+/* Academic year select specific styling */
+.dark select[class*="border-gray"] {
+  background-color: hsl(222.2 84% 4.9%);
+  color: hsl(210 40% 98%);
+  border-color: hsl(217.2 32.6% 17.5%);
+}

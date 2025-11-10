@@ -9,27 +9,75 @@ use App\Models\Course;
 use App\Models\Department;
 use App\Models\AcademicYear;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     /**
      * Get dashboard statistics
      */
-    public function index()
+    public function stats()
     {
-        $stats = [
-            'total_students' => Student::count(),
-            'total_faculty' => Faculty::count(),
-            'total_courses' => Course::count(),
-            'total_departments' => Department::count(),
-            'current_academic_year' => AcademicYear::where('is_current', true)->first(),
-            'recent_students' => Student::with('user')->latest()->take(5)->get(),
-            'recent_faculty' => Faculty::with('user')->latest()->take(5)->get(),
+        // Student Statistics
+        $studentStats = [
+            'total' => Student::where('archived', false)->count(),
+            'byCourse' => Student::where('archived', false)
+                ->select('course_id', DB::raw('count(*) as count'))
+                ->groupBy('course_id')
+                ->with('course:id,name')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'name' => $item->course->name,
+                        'value' => $item->count
+                    ];
+                }),
+            'byDepartment' => Student::where('students.archived', false)
+                ->join('courses', 'students.course_id', '=', 'courses.id')
+                ->join('departments', 'courses.department_id', '=', 'departments.id')
+                ->select('departments.name', DB::raw('count(*) as count'))
+                ->groupBy('departments.id', 'departments.name')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'name' => $item->name,
+                        'value' => $item->count
+                    ];
+                })
+        ];
+
+        // Faculty Statistics
+        $facultyStats = [
+            'total' => Faculty::where('archived', false)->count(),
+            'averageSalary' => (int)Faculty::where('archived', false)->avg('salary'),
+            'byDepartment' => Faculty::where('faculty.archived', false)
+                ->join('departments', 'faculty.department_id', '=', 'departments.id')
+                ->select('departments.name', DB::raw('count(*) as count'))
+                ->groupBy('departments.id', 'departments.name')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'name' => $item->name,
+                        'value' => $item->count
+                    ];
+                }),
+            'byEmploymentType' => Faculty::where('archived', false)
+                ->select('employment_type', DB::raw('count(*) as count'))
+                ->groupBy('employment_type')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'type' => $item->employment_type,
+                        'count' => $item->count
+                    ];
+                })
         ];
 
         return response()->json([
-            'success' => true,
-            'data' => $stats,
+            'students' => $studentStats,
+            'faculty' => $facultyStats,
+            'departments' => Department::where('archived', false)->count(),
+            'courses' => Course::where('archived', false)->count(),
         ]);
     }
 }
